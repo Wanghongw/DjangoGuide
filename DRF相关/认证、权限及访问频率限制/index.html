@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>认证、权限及访问频率限制简介 - Django使用指南</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "\u8ba4\u8bc1\u3001\u6743\u9650\u53ca\u8bbf\u95ee\u9891\u7387\u9650\u5236\u7b80\u4ecb";
+    var mkdocs_page_input_path = "DRF\u76f8\u5173/\u8ba4\u8bc1\u3001\u6743\u9650\u53ca\u8bbf\u95ee\u9891\u7387\u9650\u5236.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Django使用指南</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Django框架入门/">Django框架入门</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django核心知识点详解</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Django核心/中间件/">01 中间件</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django中常用的组件介绍</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Django组件/Django中contenttypes组件的使用/">contenttypes组件</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django进阶</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Django进阶/ORM语句的优化/">ORM语句的优化</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">DRF相关</span>
+    <ul class="subnav">
+                <li class=" current">
+                    
+    <a class="current" href="./">认证、权限及访问频率限制简介</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#_1">认证</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_2">权限</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_3">频率限制</a></li>
+    
+
+    </ul>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Django使用指南</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>DRF相关 &raquo;</li>
+        
+      
+    
+    <li>认证、权限及访问频率限制简介</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h3 id="_1">认证</h3>
+<p>认证的作用是告知api是那个用户在请求。</p>
+<p>需要新建一个UserInfo的Model。</p>
+<p>前后端不分离项目可以用Form与ModelForm代替。</p>
+<p><strong>认证类的简单写法</strong></p>
+<pre><code class="python">from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+from user import models
+
+
+class MyAuth(BaseAuthentication):
+
+    def authenticate(self, request):
+        # 通过唯一标识找到用户
+        token = request.query_params.get('token')
+        user_obj = models.User.objects.filter(token=token).first()
+
+        if user_obj:
+            # 返回：第一个是用户对象，第二个是token的值
+            return user_obj, token
+        raise AuthenticationFailed('认证失败')
+</code></pre>
+
+<p><strong>全局默认配置:所有类都进行认证</strong></p>
+<pre><code class="python">REST_FRAMEWORK = {    
+    # 后面是认证类在项目中的位置的路径
+    &quot;DEFAULT_AUTHENTICATION_CLASSES&quot;: ['user.auth.MyAuth']
+}
+</code></pre>
+
+<p><strong>视图中单独配置</strong></p>
+<p>注意：视图中的配置会“覆盖”全局默认配置，<code>如果在视图中设置为空列表，那么这个类就不进行认证了！</code> </p>
+<pre><code class="python">from user.auth import MyAuth
+
+class TestView(APIView):
+    # 配置认证的类，注意放在列表中
+    authentication_classes = [MyAuth]
+
+    def get(self, request):
+        return Response({'msg': ok'})
+</code></pre>
+
+<h3 id="_2">权限</h3>
+<p>权限组件的作用是：校验当前访问的用户能否获取到正确的结果。</p>
+<p>特别注意：</p>
+<ol>
+<li>权限组件的使用是建立在认证组件校验成功的前提下的！</li>
+<li>如果用户没有登录，此时它是一个“匿名用户”，匿名用户只能访问不用登录的页面以及进行相关的操作。</li>
+</ol>
+<p><strong>权限类的简单写法</strong></p>
+<pre><code class="python">from rest_framework.permissions import BasePermission
+
+class VipPermission(BasePermission):
+    # 错误的提示
+    message = '没有访问权限，请联系管理员'
+
+    def has_permission(self, request, view):
+        # 这里其实可以跟“权限组件”联系起来~通过用户对象连续跨表找到路由，进行权限的校验
+        if not request.auth:
+            # 没有认证就没有权限
+            return False
+
+        # 这里做了简单的校验，其实可以跟权限组件联系起来的
+        if request.user.vip:
+            return True
+        else:
+            return False
+</code></pre>
+
+<p><strong>全局默认配置:所有类都进行权限校验</strong></p>
+<pre><code class="python">REST_FRAMEWORK = {
+　　 # 校验　
+    &quot;DEFAULT_AUTHENTICATION_CLASSES&quot;: ['user.auth.MyAuth'],
+
+　　 # 权限
+    &quot;DEFAULT_PERMISSION_CLASSES&quot;:['user.permission.VipPermission']
+}
+</code></pre>
+
+<p><strong>视图中单独配置</strong></p>
+<p>注意：视图中的配置会“覆盖”全局默认配置！如果在视图中设置为空列表，那么这个类就不进行权限校验了！ </p>
+<pre><code class="python">from user.permission import VipPermission
+
+class TestView(APIView):
+    # authentication_classes = []
+    permission_classes = [VipPermission]
+</code></pre>
+
+<h3 id="_3">频率限制</h3>
+<p>顾名思义，这个组件是用来限制用户访问网站的频率的。 </p>
+<p><strong>一、自定义访问频率限制的类：</strong></p>
+<pre><code class="python">from rest_framework.throttling import BaseThrottle,SimpleRateThrottle
+import time
+from rest_framework import exceptions
+visit_record = {}
+class VisitThrottle(BaseThrottle):
+    # 限制访问时间
+    VISIT_TIME = 10
+    VISIT_COUNT = 3
+
+    # 定义方法 方法名和参数不能变
+    def allow_request(self, request, view):
+        # 获取登录主机的id
+        id = request.META.get('REMOTE_ADDR')
+        self.now = time.time()
+
+        if id not in visit_record:
+            visit_record[id] = []
+
+        self.history = visit_record[id]
+        # 限制访问时间
+        while self.history and self.now - self.history[-1] &gt; self.VISIT_TIME:
+            self.history.pop()
+        # 此时 history中只保存了最近10秒钟的访问记录
+        if len(self.history) &gt;= self.VISIT_COUNT:
+            return False
+        else:
+            self.history.insert(0, self.now)
+            return True
+
+    def wait(self):
+        return self.history[-1] + self.VISIT_TIME - self.now
+</code></pre>
+
+<p><strong>1.在全局中进行的全局配置</strong> </p>
+<pre><code class="python">REST_FRAMEWORK = {
+　　 # 校验　
+    &quot;DEFAULT_AUTHENTICATION_CLASSES&quot;: ['user.auth.MyAuth'],
+
+　　 # 权限
+    &quot;DEFAULT_PERMISSION_CLASSES&quot;:['user.permission.VipPermission'],
+
+　　# 频率限制
+　　&quot;DEFAULT_THROTTLE_CLASSES&quot;:[&quot;user.throttles.VisitThrottle&quot;,]
+}
+</code></pre>
+
+<p><strong>2.视图中进行的局部配置</strong> </p>
+<pre><code class="python">from user.throttles import *
+
+class BookViewSet(generics.ListCreateAPIView):
+    throttle_classes = [VisitThrottle,]
+
+
+    queryset = Book.objects.all()
+    serializer_class = BookSerializers
+</code></pre>
+
+<p><strong>二、Django中自带的访问频率限制的类</strong></p>
+<p><strong>1.配置</strong></p>
+<pre><code class="python">REST_FRAMEWORK = {
+
+    # 认证
+    &quot;DEFAULT_AUTHENTICATION_CLASSES&quot;: ['user.auth.MyAuth'],
+    # 权限
+    &quot;DEFAULT_PERMISSION_CLASSES&quot;:['user.permission.VipPermission']
+    # 频率
+    &quot;DEFAULT_THROTTLE_CLASSES&quot;: [
+        # 处理的类
+        'user.throttle.MyThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        # 视图
+        &quot;xxxxx&quot;: '5/m',
+        &quot;x1&quot;: '1/s',
+    }
+
+}
+
+REST_FRAMEWORK = {
+
+    &quot;DEFAULT_AUTHENTICATION_CLASSES&quot;: ['user.auth.MyAuth'],
+    &quot;DEFAULT_PERMISSION_CLASSES&quot;:['user.permission.VipPermission']
+
+    &quot;DEFAULT_THROTTLE_CLASSES&quot;: [
+        'user.throttle.MyThrottle2',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        &quot;xxxxx&quot;: '5/m',
+        &quot;x1&quot;: '1/s',
+    }
+
+}
+</code></pre>
+
+<p><strong>2.视图中调用</strong></p>
+<pre><code class="python">class TestView(APIView):
+
+    throttle_scope = 'x1'
+
+    def get(self, request):
+        return Response({'msg': 'ok'})
+
+
+class Test2View(APIView):
+    throttle_scope = 'xxxxx'
+
+    def get(self, request):
+        return Response({'msg': 'ok'})
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../../Django进阶/ORM语句的优化/" class="btn btn-neutral" title="ORM语句的优化"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../../Django进阶/ORM语句的优化/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>
