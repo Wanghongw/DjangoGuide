@@ -74,6 +74,30 @@
     <a class="current" href="./">04 模板层</a>
     <ul class="subnav">
             
+    <li class="toctree-l3"><a href="#_1">变量</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_2">过滤器</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_3">标签</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_4">标签与过滤器的一个简单实例</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_5">组件</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_6">自定义标签及过滤器</a></li>
+    
+
+    <li class="toctree-l3"><a href="#inclusion_tag">inclusion_tag</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_7">模板的继承</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
@@ -163,7 +187,302 @@
           <div role="main">
             <div class="section">
               
-                
+                <p>模板语法中主要包括<code>变量</code>与<code>标签</code>。</p>
+<h3 id="_1">变量</h3>
+<p>Django中<code>{{ }}</code>这样的语句就是变量。</p>
+<p>比如我想取列表ls的下标为0的元素：</p>
+<pre><code class="python"> {{ ls.0 }}
+</code></pre>
+
+<h3 id="_2">过滤器</h3>
+<p>过滤器是在变量中进一步操作变量的语法。</p>
+<p><strong>基本语法</strong></p>
+<pre><code class="python">{{ obj|filter_name:param }}
+</code></pre>
+
+<p>obj为变量的名字；filter_name为某一个过滤器的名字；param是相应过滤器的参数。</p>
+<p><strong>常用的过滤器</strong></p>
+<p><code>date</code></p>
+<pre><code class="python"># 在views.py文件中我们如果不对时间进行处理，比如直接取n值：
+# 那可以在模板里进行时间格式的转化
+# n=datetime.datetime.now()
+{{n|date:'Y-m-d'}}
+</code></pre>
+
+<p><code>default</code></p>
+<pre><code class="python"># 如果一个变量是false或者为空，使用给定的默认值。否则，使用变量的值。例如：
+{{value|default:'nothing'}}
+</code></pre>
+
+<p><code>length</code></p>
+<pre><code class="python"># 返回值的长度。它对字符串和列表都起作用。例如：
+{{value|length}}
+</code></pre>
+
+<p><code>slice</code></p>
+<pre><code class="python"># 切片 假如value为一个字符串，找到它下标为2-5切片组成的新字符串
+{{value|slice:'2:5'}}
+</code></pre>
+
+<p><code>truncatechars</code></p>
+<pre><code class="python"># 如果字符串字符多于指定的字符数量，那么会被截断。截断的字符串将以可翻译的省略号序列（“...”）结尾。
+# 参数：要截断的字符数 
+# 注意结尾的'...'算三个字符，如果参数&lt;=3，那浏览器上显示的永远是'...'
+{{value|truncatechars:5}}
+</code></pre>
+
+<p><code>safe</code></p>
+<pre><code class="python"># Django的模板中会对HTML标签和JS等语法标签进行自动转义，原因显而易见，这样是为了安全。但是有的时候我们可能不希望这些HTML元素被转义，比如我们做一个内容管理系统，后台添加的文章中是经过修饰的，这些修饰可能是通过一个类似于FCKeditor编辑加注了HTML修饰符的文本，如果自动转义的话显示的就是保护HTML标签的源文件。
+# 为了在Django中关闭HTML的自动转义有两种方式，如果是一个单独的变量我们可以通过过滤器“|safe”的方式告诉Django这段代码是安全的不必转义。比如：
+# views.py文件中的字符串是这样的：
+    value=&quot;&lt;a href=&quot;&quot;&gt;点击&lt;/a&gt;&quot;
+# 那index.html中告诉浏览器正常渲染就行，最终得到的是一个a标签：
+    {{value|safe}       
+</code></pre>
+
+<h3 id="_3">标签</h3>
+<p>Django中<code>{% %}</code>这样的语句就是标签。</p>
+<p>标签比变量更加复杂，一些在输出中创建文本，一些通过循环或逻辑来控制流程，一些加载其后的变量将使用到的额外信息到模版中。</p>
+<p>一些标签需要开始和结束标签</p>
+<pre><code class="python">{% tag %} 
+...标签内容 ...
+{% endtag %}
+</code></pre>
+
+<p><strong>for标签</strong></p>
+<p><code>遍历每一个元素</code></p>
+<p>可以利用<code>{% for obj in list reversed %}</code>反向完成循环。
+例如：遍历一个字典</p>
+<pre><code class="python">{% for key,value in dic.items %}
+    &lt;p&gt;{{key}}:{{value}}&lt;/p&gt;
+{% endfor %}
+</code></pre>
+
+<p>循环序号可以通过<code>{{forloop}}</code>显示</p>
+<pre><code class="python">##forloop.counter            The current iteration of the loop (1-indexed)
+##forloop.counter0           The current iteration of the loop (0-indexed)
+##forloop.revcounter         The number of iterations from the end of the loop (1-indexed)
+##forloop.revcounter0        The number of iterations from the end of the loop (0-indexed)
+##forloop.first              True if this is the first time through the loop
+##forloop.last               True if this is the last time through the loop
+
+{% for key,value in dic.items %}
+    &lt;p&gt;{{forloop.counter0}}:{{key}}:{{value}}&lt;/p&gt;
+{% endfor %}
+</code></pre>
+
+<p><code>for ... empty</code></p>
+<p>for 标签带有一个可选的<code>{% empty %}</code> 从句，以便在给出的组是空的或者没有被找到时，可以有所操作。</p>
+<pre><code class="python">{% for person in person_list %}
+    &lt;p&gt;{{ person.name }}&lt;/p&gt;
+
+{% empty %}
+    &lt;p&gt;sorry,no person here&lt;/p&gt;
+{% endfor %}
+</code></pre>
+
+<p><strong>if标签</strong></p>
+<p>{% if %}会对一个变量求值，如果它的值是“True”（存在、不为空、且不是boolean类型的false值），对应的内容块会输出。</p>
+<pre><code class="python">{% if num &gt; 100 or num &lt; 0 %}
+    &lt;p&gt;无效&lt;/p&gt;
+{% elif num &gt; 80 and num &lt; 100 %}
+    &lt;p&gt;优秀&lt;/p&gt;
+{% else %}
+    &lt;p&gt;凑活吧&lt;/p&gt;
+{% endif %}
+</code></pre>
+
+<p><strong>with标签</strong></p>
+<p>使用一个简单地名字缓存一个复杂的变量，当你需要使用一个“昂贵的”方法（比如访问数据库）很多次的时候是非常有用的。</p>
+<pre><code class="python">{% with total=business.employees.count %}
+    {{ total }} employee{{ total|pluralize }}
+{% endwith %}
+</code></pre>
+
+<p><strong>csrf_token</strong></p>
+<p>这个标签用于跨站请求伪造保护</p>
+<p>不注释的情况下我们可以这样做：在login.html文件里加上csrf_token就可以了：</p>
+<pre><code class="python">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Title&lt;/title&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;/static/whw1.css&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;form action=&quot;http://127.0.0.1:8000/login/&quot; method=&quot;post&quot;&gt;
+    {{# 注意要在form表单里面加 #}}
+    {% csrf_token %}
+    用户名: &lt;input type=&quot;text&quot; name=&quot;user&quot;  &gt;
+    密码: &lt;input type=&quot;password&quot; name=&quot;pwd&quot;&gt;
+    &lt;input type=&quot;submit&quot;&gt;
+&lt;/form&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>爬虫发送post请求简单模拟：</p>
+<pre><code class="python">import requests
+
+res = requests.post('http://127.0.0.1:8000/login/',data={
+    'username':'whw',
+    'password':'123'
+})
+print(res.text)
+</code></pre>
+
+<p>'django.middleware.csrf.CsrfViewMiddleware', 全局中间件的配置</p>
+<p>通过它还有一种方式：装饰器的形式</p>
+<pre><code class="python">from django.views.decorators.csrf import csrf_exempt,csrf_protect
+#放行csrf认证,即便是全局配置了csrf认证
+@csrf_exempt  
+def login(request):
+    if request.method == 'GET':
+        return render(request,'login.html')
+    else:
+        username = request.POST.get('username')
+        print(request.POST) #&lt;QueryDict: {'csrfmiddlewaretoken': ['OhZYiA1NHjh6ywLldzLOzy4N2OXOmHZH4tIlZvTe5ll0p6OSNUhuEgu3aOalUZoo'], 'username': ['chao']}&gt;
+        print(username)
+        return HttpResponse('ok')
+
+#还有一种强制保护
+@csrf_protect  #强制csrf认证,即便是全局没有配置csrf认证
+def login(request):
+    if request.method == 'GET':
+        return render(request,'login.html')
+    else:
+        username = request.POST.get('username')
+        print(request.POST) #&lt;QueryDict: {'csrfmiddlewaretoken': ['OhZYiA1NHjh6ywLldzLOzy4N2OXOmHZH4tIlZvTe5ll0p6OSNUhuEgu3aOalUZoo'], 'username': ['chao']}&gt;
+        print(username)
+        return HttpResponse('ok')
+
+</code></pre>
+
+<h3 id="_4">标签与过滤器的一个简单实例</h3>
+<p><strong>url</strong></p>
+<pre><code class="python">re_path('^index/$',views.index),
+</code></pre>
+
+<p><strong>视图函数</strong></p>
+<pre><code class="python">from django.shortcuts import render,HttpResponse
+def index(request):
+    import datetime
+    n = datetime.datetime.now()
+    now = strftime('%Y-%m-%d %X')
+
+    #变量
+    name = 'wanghwqweqwasdqwe'
+    list_w = [111,222,333]
+    dic_w = {'w':1,'h':2}
+
+    class Person:
+        def __init__(self,name,age):
+            self.name = name
+            self.age = age
+    person_1 = Person('wa1',22) #自定义类对象
+    person_2 = Person('wa2',23) #自定义类对象
+    person_3 = Person('wa3',24) #自定义类对象
+    person_list = [person_1,person_2,person_3]
+
+    return render(request,'index.html',{
+                'datetime':now,
+                'name':name,
+                'ls':list_w,
+                'dic':dic_w,
+                'person1_name_upper':person_1.name.upper(),
+                'person_2_age':person_list[1].age,
+                'n':n,
+            })
+
+    #这里也可以简写成locals()——字典的key值与变量名一样！——&gt;字典的key值与value值一样！
+    #return render(requset,'index.html',locals())
+</code></pre>
+
+<p><strong>模板文件的使用</strong></p>
+<pre><code class="python">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;Title&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    {#变量#}
+    &lt;p&gt;{{ datetime }}&lt;/p&gt;
+    &lt;p&gt;{{ name }}&lt;/p&gt;
+    &lt;p&gt;{{ ls }}&lt;/p&gt;
+    &lt;p&gt;{{ ls.0 }}&lt;/p&gt;
+    &lt;p&gt;{{ dic }}&lt;/p&gt;
+    &lt;p&gt;{{ person1_name_upper }}&lt;/p&gt;
+    &lt;p&gt;{{ person_2_age }}&lt;/p&gt;
+    &lt;p&gt;{{ ls|length }}&lt;/p&gt;
+    &lt;p&gt;{{ name|slice:'2:5' }}&lt;/p&gt;
+    &lt;p&gt;{{ name|truncatechars:7 }}&lt;/p&gt;
+    &lt;p&gt;{{ n|date:'Y-m-d ' }}&lt;/p&gt;
+
+    {#标签#}
+    {#遍历字典#}
+    {% for key,value in dic.items %}
+        &lt;p&gt;{{ forloop.counter0 }}:{{ key }}:{{ value }}&lt;/p&gt;
+    {% endfor %}
+    {#条件判断#}
+    {% if ls.0 &gt; 200 %}
+        &lt;p&gt;可以可以&lt;/p&gt;
+    {% elif ls.0 &gt; 100 and ls.0 &lt; 200  %}
+        &lt;p&gt;呵呵哒&lt;/p&gt;
+    {% else %}
+        &lt;p&gt;哈哈哈哈哈&lt;/p&gt;
+    {% endif %}
+
+    {#自定义过滤器#}
+    {% load my_tag_filter %}
+    &lt;p&gt;{{ ls.0|multi_filter:20}}&lt;/p&gt;
+
+     &lt;h4&gt;自定义标签&lt;/h4&gt;
+    &lt;p&gt;{% simple_tag_multi 5 6 %}&lt;/p&gt;
+    {#记得给自定义的input传参#}
+    &lt;p&gt;{% my_input 'w' 'asd' %}&lt;/p&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h3 id="_5">组件</h3>
+<p>组件其实就是一个完整的模块，将这个完整功能模块放到一个hmtl文件中，使用这个模块的其他页面,直接在页面中引入即可， 引入方式为<code>{% include '模块.html' %}</code>,可以在任意位置引入。</p>
+<p><strong>组件与插件的区别</strong></p>
+<p>组件是提供某一完整功能的模块，如：编辑器组件，QQ空间提供的关注组件 等。 而插件更倾向封闭某一功能方法的函数。 这两者的区别在 Javascript 里区别很小，组件这个名词用得不多，一般统称插件。</p>
+<p><strong>使用组件的一个简单实例</strong></p>
+<p>这里我有两个页面：1.html与2.html
+1.html的内容是这样的</p>
+<pre><code class="python">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot; /&gt;
+    &lt;title&gt;哈哈哈哈&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;div id=&quot;sidebar&quot;&gt;
+        {# 在页面1中直接引入页面2，此时页面2就是一个组件 #}
+        {% include '2.html' %}
+    &lt;/div&gt;
+
+
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>2.html的内容是这样的</p>
+<pre><code class="python">&lt;div&gt;
+    &lt;a&gt;哈哈哈哈哈&lt;/a&gt;
+&lt;/div&gt;
+</code></pre>
+
+<p>如果1.html与2.html这两个文件在同一个package中，那么1.html可以直接显示2.html的内容了！</p>
+<h3 id="_6">自定义标签及过滤器</h3>
+<h3 id="inclusion_tag">inclusion_tag</h3>
+<h3 id="_7">模板的继承</h3>
               
             </div>
           </div>
