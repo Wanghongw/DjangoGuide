@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>02 视图系统 - Django使用指南</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "02 \u89c6\u56fe\u7cfb\u7edf";
+    var mkdocs_page_input_path = "Django\u6838\u5fc3/\u89c6\u56fe\u7cfb\u7edf.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Django使用指南</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Django框架入门/">Django框架入门</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django核心知识点详解</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../路由/">01 路由控制</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">02 视图系统</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#_1">请求对象</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_2">响应对象</a></li>
+    
+
+    <li class="toctree-l3"><a href="#fbvcbv">FBV与CBV</a></li>
+    
+
+    <li class="toctree-l3"><a href="#cbv">CBV路由的写法</a></li>
+    
+
+    <li class="toctree-l3"><a href="#cbvdispatch">CBV中的dispatch方法</a></li>
+    
+
+    <li class="toctree-l3"><a href="#fbv">给FBV视图加装饰器</a></li>
+    
+
+    <li class="toctree-l3"><a href="#cbv_1">给CBV视图加装饰器</a></li>
+    
+
+    <li class="toctree-l3"><a href="#csrfcbv">关于csrf校验的装饰器在CBV模式下的使用</a></li>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../模型层/">03 模型层</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../模板层/">04 模板层</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../中间件/">05 中间件</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django中常用的组件介绍</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Django组件/Django中contenttypes组件的使用/">contenttypes组件</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django进阶及其他知识点汇总</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Django进阶/ORM语句的优化/">ORM语句的优化</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">DRF相关</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../DRF相关/认证、权限及访问频率限制/">认证、权限及访问频率限制简介</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">web开发常识</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../123/">123</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Django使用指南</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Django核心知识点详解 &raquo;</li>
+        
+      
+    
+    <li>02 视图系统</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <p>web请求经过路由控制器后，核心处理业务逻辑的地方就是Django的<code>视图系统</code>。视图接收请求对象并处理好业务逻辑后必须要返回一个<code>HttpResponse响应对象</code>。</p>
+<p>关于Django中视图的具体说明如下：</p>
+<ol>
+<li>一个视图，是一个简单的Python函数或者类，它接受Web请求并且返回Web响应。响应可以是一张网页的HTML内容，一个重定向，一个404错误，一个XML文档，或者一张图片，任何东西都可以 。</li>
+<li>无论视图本身包含什么逻辑，都要返回响应。</li>
+<li>代码写在哪里也无所谓，只要它在你的Python目录下面。除此之外没有更多的要求了——可以说“没有什么神奇的地方”。</li>
+<li>为了将代码放在某处，约定是将视图放置在项目或应用程序目录中的名为views.py的文件中。</li>
+</ol>
+<p>通过上面的介绍大家肯定对视图的用法有了一些简单的认识，接下来着重介绍一下视图中的<code>请求对象</code>与<code>响应对象</code>。</p>
+<h3 id="_1">请求对象</h3>
+<p>请求对象需要大家记住常用的方法与属性就可以了：</p>
+<pre><code class="python">request.body # 得到用户提交数据的原始数据类型（bytes类型的数据） b'username=chao&amp;passowrd=123'
+request.method # 请求方式：POST、GET等
+request.GET # get请求对象：request.GET.get(&quot;name&quot;)获取get请求的参数
+request.POST # post请求对象
+request.path # 请求路径：127.0.0.1:8000/blog/index/打印出来的是/blog/index/
+request.path_info # 与path属性获取到的信息一样
+request.META  # 获取请求头的元信息
+request.META.get('HTTP_USER_AGENT') # 拿到的是浏览器的信息——有些网站的的反爬机制就是做了user_agent的验证
+request.META.get('REMOTE_ADDR') # 拿到的是客户端的地址
+
+request.get_full_path() # 获取除域名之外的全路径,包括请求参数:/blog/index/?a=1&amp;b=2
+request.is_ajax() # 判断请求是否是ajax请求，建议不用它，Django3已取消了这个方法
+
+
+</code></pre>
+
+<h3 id="_2">响应对象</h3>
+<p>Django中有三个响应对象：<code>HttpResponse</code>、<code>render</code>、<code>redirect</code>。</p>
+<p><strong>1、HttpResponse</strong></p>
+<p>HttpResponse()括号内直接跟一个字符串作为响应体，比较简单直接，所以这里主要介绍后面两种形式</p>
+<p><strong>2、render</strong></p>
+<p>render方法就是将一个模板页面中的模板语法进行渲染，最终渲染成一个html页面作为响应体。</p>
+<p>语法：</p>
+<pre><code class="python">return render(request, template_name[, context])
+</code></pre>
+
+<p>结合一个给定的模板和一个给定的上下文字典，并返回一个渲染后的 HttpResponse 对象。</p>
+<pre><code class="python">def index(request):
+    import datetime
+    n = datetime.datetime.now()
+    now = n.strftime('%Y-%m-%d:%X')
+    return render(request,'index.html',{'datetime':now})
+</code></pre>
+
+<p>参数：</p>
+<p>(1)request： 用于生成响应的请求对象。</p>
+<p>(2)template_name：要使用的模板的完整名称，可选的参数 。</p>
+<p>(3)context：添加到模板上下文的一个字典。默认是一个空字典。如果字典中的某个值是可调用的，视图将在渲染模板之前调用它。</p>
+<p>注意：</p>
+<p>（1）浏览器并不认识模板语法，render方法找到index.html文件之后，它先检查里面有没有模板语法，如果有模板语法先将传入的值做替换，将字典的key对应的value值now作为参数传给浏览器，传完参数之后index.html才是一个html文件了，然后render再将html文件那一堆东西传给浏览器，所以浏览最后显示的是now的值。 </p>
+<p>（2）render将模板语法替换成对应的值——这个过程十分重要，如果index.html文件中有需要“嵌入”的参数，那render的第三个参数得加，如果只是一个“静态页面”，不需要加render的第三个参数。对应的templates文件中的index.html文件的p标签这样写：<code>{{datetime}}</code>注意此时嵌套了模板语法的index.html文件，在django中称为“模板文件”。</p>
+<p><strong>3、redirect</strong></p>
+<p>重定向这个简单，可以传递一个需要重定向的硬编码的URL：</p>
+<pre><code class="python">def my_view(request):
+    ...
+    return redirect('/some/url/')
+</code></pre>
+
+<p>当然也可以传递一个完整的URL：</p>
+<pre><code class="python">def my_view(request):
+    ...
+    return redirect('http://example.com/')
+</code></pre>
+
+<p>重定向常见的状态码：</p>
+<pre><code class="python"># 301和302的区别
+
+301和302状态码都表示重定向，就是说浏览器在拿到服务器返回的这个状态码后会自动跳转到一个新的URL地址，这个地址可以从响应的Location首部中获取（用户看到的效果就是他输入的地址A瞬间变成了另一个地址B）——这是它们的共同点。
+他们的不同在于：301表示旧地址A的资源已经被永久地移除了（这个资源不可访问了），搜索引擎在抓取新内容的同时也将旧的网址交换为重定向之后的网址；302表示旧地址A的资源还在（仍然可以访问），这个重定向只是临时地从旧地址A跳转到地址B，搜索引擎会抓取新的内容而保存旧的网址。 
+</code></pre>
+
+<p>常见重定向的原因：</p>
+<p>（1）网站调整（如改变网页目录结构）。</p>
+<p>（2）网页被移到一个新地址。</p>
+<p>（3）网页扩展名改变(如应用需要把.php改成.Html或.shtml)。 这种情况下，如果不做重定向，则用户收藏夹或搜索引擎数据库中旧地址只能让访问客户得到一个404页面错误信息，访问流量白白丧失；再者某些注册了多个域名的网站，也需要通过重定向让访问这些域名的用户自动跳转到主站点等。</p>
+<h3 id="fbvcbv">FBV与CBV</h3>
+<p>FBV（function base views） 就是在视图里使用函数处理请求。 之前的例子都是基于FBV模式写的代码。</p>
+<p>CBV（class base views）就是在视图里使用类处理请求。Python是一个面向对象的编程语言，如果只用函数来开发，有很多面向对象的优点就错失了（继承、封装、多态）。 所以Django在后来加入了Class-Based-View。可以让我们用类写View。 这样做的优点主要下面两个方面：</p>
+<ol>
+<li>提高了代码的复用性，可以使用面向对象的技术，比如Mixin（多继承）。</li>
+<li>可以用不同的函数针对不同的HTTP方法处理，而不是通过很多if判断，提高代码可读性。</li>
+</ol>
+<p>下面主要介绍一下FBV与CBV的区别。</p>
+<p>如果我们要写一个处理GET方法的view：</p>
+<p>用函数写的话是下面这样:</p>
+<pre><code class="python">#路由中：
+url('^now$',views.count_now)
+#视图函数中：
+def count_now(request):
+    now_time = time.localtime()
+    now_str = time.strftime('%Y-%m-%d %H:%M:%S',now_time)
+    if request.method == 'GET':
+        return render(request,'now.html',{'now_str':now_str})
+</code></pre>
+
+<p>如果用类处理的话是这样:</p>
+<pre><code class="python">#路由中：
+url('^now$',views.MyNow.as_view())
+#视图函数中
+from django.views import View
+class MyNow(View):
+    # get方法处理get请求
+    def get(self,request):
+        now_time = time.localtime()
+        now_str = time.strftime('%Y-%m-%d %H:%M:%S',now_time)
+        return render(request,'now.html',{'now_str':now_str})
+</code></pre>
+
+<p><strong>CBV中添加类的属性</strong></p>
+<p>方法一：使用Python方法，可以被子类覆盖：</p>
+<pre><code class="python">class MyNow(View):
+
+    name = 'wanghw'
+
+    def get(self,request):
+        now_time = time.localtime()
+        now_str = time.strftime('%Y-%m-%d %H:%M:%S',now_time)
+        return render(request,'now.html',{'now_str':now_str,'name':self.name})
+</code></pre>
+
+<p>方法二：可以在url中指定类的属性</p>
+<pre><code class="python">urlpatterns = [
+    path('admin/', admin.site.urls),
+    re_path('^now/$',views.MyNow.as_view(name='whw')) # 类里面必须有name属性，并且会被传进来的这个属性值给覆盖掉
+]
+</code></pre>
+
+<p>注意：最终name属性的值是url里面传进去的值<code>whw</code></p>
+<h3 id="cbv">CBV路由的写法</h3>
+<p>如果在视图中定义了Index类处理/index/这条路由，那么对应的路由应该这样写：</p>
+<pre><code class="python"> re_path('^index/$',views.Index.as_view()) 
+</code></pre>
+
+<h3 id="cbvdispatch">CBV中的dispatch方法</h3>
+<p>在执行Http方法（get、post等）之前会先执行dispatch方法，这个结论一定要记住！</p>
+<p>我们可以在Http方法执行之前在dispatch方法中定制一些功能。</p>
+<pre><code class="python">#视图函数的写法
+from django.views import View
+class LoginView(View): #继承View
+
+    # 先执行dispatch方法再执行get或者post方法
+    def dispatch(self,request,*args,**kwargs)
+        #执行父类的dispatch方法
+        ret = super().dispatch(request,*args,**kwargs)
+        return ret  #别忘了return值
+
+    def get(self,request): #根据用户的请求方法,找到对应的方法
+
+        return render(request,'login.html')
+
+    def post(self,request):
+        print(request.POST)
+        uname = request.POST.get('username')
+        pwd = request.POST.get('password')
+        if uname == 'chao' and pwd == '123':
+            return render(request, 'home.html')
+        return HttpResponse('用户名或者密码错误')
+
+</code></pre>
+
+<h3 id="fbv">给FBV视图加装饰器</h3>
+<p>FBV本身就是一个函数，所以和给普通的函数加装饰器无差</p>
+<p><code>一定要记得，装饰器return func返执行的结果</code></p>
+<pre><code class="python">def wrapper(func):
+    def inner(*args,**kwargs):
+        print(123)
+        ret = func(*args,**kwargs)
+        print(456)
+        #注意必须return func执行的结果！
+        return ret
+    return inner
+
+@wrapper
+def count_now(request):
+    now_time = time.localtime()
+    now_str = time.strftime('%Y-%m-%d %H:%M:%S',now_time)
+    if request.method == 'GET':
+        return render(request,'now.html',{'now_str':now_str})
+
+</code></pre>
+
+<h3 id="cbv_1">给CBV视图加装饰器</h3>
+<p>类中的方法与独立函数不完全相同，因此不能直接将函数装饰器应用于类中的方法 ，我们需要先将其转换为方法装饰器。</p>
+<p>Django中提供了<code>method_decorator</code>装饰器用于将函数装饰器转换为方法装饰器。</p>
+<p>我们还用上面的装饰器：</p>
+<pre><code class="python">def wrapper(func):
+    def inner(*args,**kwargs):
+        print(123)
+        ret = func(*args,**kwargs)
+        print(456)
+        #注意必须return func执行的结果！
+        return ret
+    return inner
+</code></pre>
+
+<p>注意，先引入method_decorator：</p>
+<pre><code class="python">from django.utils.decorators import method_decorator
+</code></pre>
+
+<p><strong>方法一</strong></p>
+<p>给get活post方法单独加：</p>
+<pre><code class="python">class MyNow(View):
+    name = 'wanghw'
+
+    # 单独加装饰器
+    @method_decorator(wrapper)
+    def get(self,request):
+        now_time = time.localtime()
+        now_str = time.strftime('%Y-%m-%d %H:%M:%S',now_time)
+        return render(request,'now.html',{'now_str':now_str,'name':self.name})
+</code></pre>
+
+<p><strong>方法二</strong></p>
+<p>给dispatch方法(分发方法)加。<code>这样的话相当于给get或post方法都加上了装饰器</code>。</p>
+<pre><code class="python">class MyNow(View):
+    name = 'wanghw'
+
+    # 这样相当于给下面的http方法都加了装饰器
+    @method_decorator(wrapper)
+    def dispatch(self, request, *args, **kwargs):
+        print('before')
+        obj = super().dispatch(request,*args,**kwargs)
+        print('after')
+        #注意要return obj
+        return obj
+
+    def get(self,request):
+        now_time = time.localtime()
+        now_str = time.strftime('%Y-%m-%d %H:%M:%S',now_time)
+        return render(request,'now.html',{'now_str':now_str,'name':self.name})
+</code></pre>
+
+<p><strong>方法三</strong></p>
+<p>使用“装饰器嵌套”给类加——name后面的值必须是个字符串。</p>
+<p><code>装饰器叠加：内层装饰器的返回值给了外层</code></p>
+<pre><code class="python">@method_decorator(wrapper,name='get')
+@method_decorator(wrapper,name='post')
+class MyNow(View):
+    name = 'wanghw'
+
+    def get(self,request):
+        now_time = time.localtime()
+        now_str = time.strftime('%Y-%m-%d %H:%M:%S',now_time)
+        return render(request,'now.html',{'now_str':now_str,'name':self.name})
+
+    def post(self,request):
+        pass
+</code></pre>
+
+<h3 id="csrfcbv">关于csrf校验的装饰器在CBV模式下的使用</h3>
+<p>注意：<code>CSRF Token相关装饰器在CBV中只能加到dispatch方法上，或者加在视图类上然后name参数指定为dispatch方法！</code></p>
+<p>csrf校验的两个装饰器为：</p>
+<pre><code class="python">csrf_protect，为当前函数强制设置防跨站请求伪造功能，即便settings中没有设置全局中间件。
+
+csrf_exempt，取消当前函数防跨站请求伪造功能，即便settings中设置了全局中间件。
+</code></pre>
+
+<p><strong>写法一</strong></p>
+<pre><code class="python">from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.utils.decorators import method_decorator
+
+
+class HomeView(View):
+
+    # 加在dispatch方法上
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(HomeView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return render(request, &quot;home.html&quot;)
+
+    def post(self, request):
+        print(&quot;Home View POST method...&quot;)
+        return redirect(&quot;/index/&quot;)
+</code></pre>
+
+<p><strong>写法二</strong></p>
+<pre><code class="python">from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.utils.decorators import method_decorator
+
+# 加在类上，但是name必须指定'dispatch'
+@method_decorator(csrf_exempt, name='dispatch')
+class HomeView(View):
+
+    def dispatch(self, request, *args, **kwargs):
+        return super(HomeView, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request):
+        return render(request, &quot;home.html&quot;)
+
+    def post(self, request):
+        print(&quot;Home View POST method...&quot;)
+        return redirect(&quot;/index/&quot;)
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../模型层/" class="btn btn-neutral float-right" title="03 模型层">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../路由/" class="btn btn-neutral" title="01 路由控制"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../路由/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../模型层/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>
