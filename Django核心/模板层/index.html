@@ -481,8 +481,220 @@ def index(request):
 
 <p>如果1.html与2.html这两个文件在同一个package中，那么1.html可以直接显示2.html的内容了！</p>
 <h3 id="_6">自定义标签及过滤器</h3>
+<p>当然，如果Django自带的标签及过滤器如果不够用的话我们还可以自定义标签及过滤器。</p>
+<p><strong>简单步骤</strong></p>
+<p>1、app应用文件夹中创建一个叫做templatetags的文件夹</p>
+<p>2、在templatetags里面创建一个py文件,例如:mytag.py </p>
+<p>3、mytag.py:</p>
+<pre><code class="python">from django import template
+from django.utils.safestring import mark_safe #mark_safe让字符串形式的标签生效 后面有实例
+
+register = template.Library()   #register的名字是固定的,不可改变
+
+
+# 自定义乘法过滤器
+@register.filter
+def filter_multi(v1,v2):
+    return  v1 * v2
+
+# 自定义乘法标签
+@register.simple_tag  #和自定义filter类似，只不过接收更灵活的参数，没有个数限制。
+def simple_tag_multi(v1,v2):
+    return  v1 * v2
+
+@register.simple_tag
+def my_input(id,arg):
+    result = &quot;&lt;input type='text' id='%s' class='%s' /&gt;&quot; %(id,arg,)
+    # 返回字典格式的数据 
+    # mark_safe让字符串形式的标签生效
+    return {'ret':mark_safe(result)})
+</code></pre>
+
+<p>4、在使用自定义simple_tag和filter的html文件中导入之前创建的 my_tags.py</p>
+<pre><code class="python">{% load my_tags %}　
+</code></pre>
+
+<p>5、使用simple_tag和filter（如何调用）</p>
+<pre><code class="python">-------------------------------.html
+{% load my_tags %}  
+
+# num=12
+{{ num|filter_multi:2 }} #24
+
+{{ num|filter_multi:&quot;[22,333,4444]&quot; }}
+
+{% simple_tag_multi 2 5 %}  参数不限,但不能放在if for语句中
+{% simple_tag_multi num 5 %}
+
+{#记得给自定义的input传参#}
+&lt;p&gt;{% my_input 'w' 'asd' %}&lt;/p&gt;
+</code></pre>
+
+<p>6、自定义的乘法过滤器与自定义乘法标签的区别</p>
+<p>（1）过滤器最多只能定义两个形参，这是由它的调用形式决定的，因为过滤器调用的时候无法穿第三个参数(如上面例子,只能调用ls.0与3)而multi_tag自定义标签可以有多个形参  。</p>
+<p>（2）但是如果进行“逻辑判断”的时候，就得用自定义过滤器了，因为<code>filter可以用在if等语句后，simple_tag不可以</code>，如：</p>
+<pre><code class="python">{% if num|filter_multi:30 &gt; 100 %}
+    &lt;p&gt;{{ num|filter_multi:30 }}&lt;/p&gt;
+{% endif %}
+</code></pre>
+
 <h3 id="inclusion_tag">inclusion_tag</h3>
+<p>Inclusion_tag本质上也是一个自定义的标签，多用于<code>返回html代码片段</code>。</p>
+<p><strong>举例说明</strong></p>
+<p>templatetags/my_inclusion.py文件中：</p>
+<pre><code class="python">from django import template
+
+register = template.Library()
+ #将result.html里面的内容用下面函数的返回值渲染，然后作为一个组件一样，加载到使用这个函数的html文件里面
+@register.inclusion_tag('result.html') 
+ #参数可以传多个进来
+def show_results(n):
+    n = 1 if n &lt; 1 else int(n)
+    data = [&quot;第{}项&quot;.format(i) for i in range(1, n+1)]
+    return {&quot;data&quot;: data}#这里可以穿多个值，和render的感觉是一样的{'data1':data1,'data2':data2....}
+</code></pre>
+
+<p>templates/snippets/result.html文件作为片段的内容:</p>
+<pre><code class="python">&lt;ul&gt;
+  {% for choice in data %}
+    &lt;li&gt;{{ choice }}&lt;/li&gt;
+  {% endfor %}
+&lt;/ul&gt;
+</code></pre>
+
+<p>templates/index.html文件引入上面的片段</p>
+<pre><code class="python">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;IE=edge&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+  &lt;title&gt;inclusion_tag test&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+{% load my_inclusion %}
+
+{% show_results 10 %} 
+ &lt;!-- 这个10 是参数 --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p><strong>inclusion_tag参考博客</strong></p>
+<p><a href="https://blog.csdn.net/miaoqinian/article/details/80932725">Django模版语言inclusion_tag的用法</a></p>
 <h3 id="_7">模板的继承</h3>
+<p>Django模版引擎中最强大也是最复杂的部分就是模版继承了。模版继承可以让您创建一个基本的“骨架”模版，它包含您站点中的全部元素，并且可以定义能够被子模版覆盖的blocks。</p>
+<p><strong>模版继承的步骤</strong></p>
+<p>1、创建一个模板.html文件。</p>
+<p>2、需要继承的子文件中必须在“开头“位置引入模板文件<code>{% extends '模板.html' %}</code>。</p>
+<p>3、模板.html 中将需要被子文件修改的部分指出来：<code>{% block content %} xxxxxxx{% endblock %}</code>，还可以指定名字结束<code>{% endblock content%}</code>。</p>
+<p>4.1、继承模板的子文件里面开始写自己的内容：<code>{% block content %} 自己html里面的内容{% endblock %}</code>。</p>
+<p>4.2、保留模板内容的写法<code>{% block content %}{{ block.super }}自己html里面的内容{% endblock %}</code> ，如果不加<code>{{ block.super }}</code>的话，模板中写的内容在子页中是无法显示的，加上的话就显示出来了，而且加的位置不一样显示的位置也不一样！</p>
+<p><strong>使用模版继承的一些提示</strong></p>
+<pre><code class="python">（1）如果你在模版中使用 {% extends %} 标签，它必须是模版中的第一个标签。其他的任何情况下，模版继承都将无法工作。
+（2）在base模版中设置越多的 {% block %} 标签越好。请记住，子模版不必定义全部父模版中的blocks，所以，
+ 你可以在大多数blocks中填充合理的默认内容，然后，只定义你需要的那一个。多一点钩子总比少一点好。
+（3）如果你发现你自己在大量的模版中复制内容，那可能意味着你应该把内容移动到父模版中的一个 {% block %} 中。
+（4）为了更好的可读性，你也可以给你的{% endblock %} 标签一个 名字 。例如：
+    {% block content %}
+    ...
+    {% endblock content %}
+在大型模版中，这个方法帮你清楚的看到哪一个　 {% block %} 标签被关闭了。  
+（5）不能在一个模版中定义多个相同名字的 block 标签。 
+（6）If you need to get the content of the block from the parent template, the variable will do the trick. This is useful if you want to add to the contents of a parent block instead of completely overriding it. Data inserted using will not be automatically escaped (see the next section), since it was already escaped, if necessary, in the parent template.
+</code></pre>
+
+<p><strong>模板继承的一个实例</strong></p>
+<p>我们先创建一个base的路由与视图：</p>
+<pre><code class="python"># 路由
+re_path('^base/$',views.base),
+# 视图
+def base(request):
+    return render(request,'base.html')  
+</code></pre>
+
+<p>在templates模板目录中加入base.html<code>母版</code>文件：</p>
+<pre><code class="python">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+    &lt;head&gt;
+        &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot; /&gt;
+        &lt;title&gt;{% block title %}My amazing site{% endblock %}&lt;/title&gt;
+    &lt;/head&gt;
+
+    &lt;body&gt;
+        &lt;div id=&quot;sidebar&quot;&gt;
+            {% block sidebar %}
+            &lt;ul&gt;
+                &lt;li&gt;&lt;a href=&quot;/&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+                &lt;li&gt;&lt;a href=&quot;/blog/&quot;&gt;Blog&lt;/a&gt;&lt;/li&gt;
+            &lt;/ul&gt;
+            {% endblock %}
+        &lt;/div&gt;
+
+        &lt;div id=&quot;content&quot;&gt;      
+            {% block content %}{% endblock %}
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p>母版说明：</p>
+<pre><code class="python">这个模版，我们把它叫作母版，它定义了一个可以用于两列排版页面的简单HTML骨架。
+“子模版”的工作是用它们的内容填充空的blocks。
+在这个例子中，block标签定义了三个可以被子模版内容填充的block。
+block 告诉模版引擎：子模版可能会覆盖掉模版中的这些位置。
+</code></pre>
+
+<p>子模板我们命名为child1，他的路由与视图的逻辑如下：</p>
+<pre><code class="python"># 路由
+re_path('^child1$',views.child1),
+# 视图
+def child1(request):
+    list_w = [111,222,333]
+    return render(request,'child1.html',{'list_w':list_w})
+</code></pre>
+
+<p>子模板child1.html中的内容为：</p>
+<pre><code class="python">{% extends 'base.html' %}
+
+{% block title %} 哈哈哈哈 {% endblock %}
+{% block content %}
+    &lt;p&gt;{{ list_w }}&lt;/p&gt;
+{% endblock %}
+</code></pre>
+
+<p>子模版说明1：</p>
+<pre><code class="python">extends标签是这里的关键。它告诉模版引擎，这个模版“继承”了另一个模版。当模版系统处理这个模版时：
+首先，它将定位父模版——在此例中，就是“base.html”。
+然后，模版引擎将注意到 base.html 中的三个 block标签，并用子模版中的内容来替换这些block。
+这种方式使代码得到最大程度的复用，并且使得添加内容到共享的内容区域更加简单，例如，部分范围内的导航。
+请注意，子模版并没有定义 sidebar block，所以系统使用了父模版中的值。
+被继承的母版的 {% block %} 标签中的内容总是被用作备选内容（fallback）。
+</code></pre>
+
+<p>子模版说明2：根据 child1.html 的值，输出可能看起来是这样的</p>
+<pre><code class="html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;style.css&quot; /&gt;
+    &lt;title&gt;哈哈哈哈&lt;/title&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+    &lt;div id=&quot;sidebar&quot;&gt;
+        &lt;ul&gt;
+            &lt;li&gt;&lt;a href=&quot;/&quot;&gt;Home&lt;/a&gt;&lt;/li&gt;
+            &lt;li&gt;&lt;a href=&quot;/blog/&quot;&gt;Blog&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+
+    &lt;div id=&quot;content&quot;&gt;
+        &lt;p&gt; [111,222,333]&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
               
             </div>
           </div>
