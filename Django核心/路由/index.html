@@ -285,7 +285,7 @@ urlpatterns = [
 <p>当前端模板（提交请求）与视图逻辑（做重定向）需要用到传来的url时，将整个url当作参数并不是很方便。我们可以在路由中为每条url设置<code>别名</code>，其他地方需要使用这条url时只需要使用这个别名就可以了，这就是反向解析的作用。</p>
 <p>路由中<code>设置别名</code>的方法 —— 只需要在视图的后面加上<code>name=别名</code>即可</p>
 <pre><code class="python">re_path('^login/$',views.login,name=&quot;login&quot;),
-re_path('^index/$',views.login,name=&quot;index&quot;),
+re_path('^index/$',views.index,name=&quot;index&quot;),
 </code></pre>
 
 <p><strong>反向解析在视图中的使用</strong></p>
