@@ -3,12 +3,18 @@ site_name: Django使用指南
 nav:
 - Django框架入门: Django框架入门.md
 - Django核心知识点详解: 
-  - 01 中间件: Django核心/中间件.md
+  - 01 路由控制: Django核心/路由.md
+  - 02 视图系统: Django核心/视图系统.md
+  - 03 模型层: Django核心/模型层.md
+  - 04 模板层: Django核心/模板层.md
+  - 05 中间件: Django核心/中间件.md
 - Django中常用的组件介绍:
   - contenttypes组件: Django组件/Django中contenttypes组件的使用.md
-- Django进阶:
+- Django进阶及其他知识点汇总:
   - ORM语句的优化: Django进阶/ORM语句的优化.md
 - DRF相关:
   - 认证、权限及访问频率限制简介: DRF相关/认证、权限及访问频率限制.md
+- web开发常识:
+  - 123: 123.md
 
 theme: readthedocs
