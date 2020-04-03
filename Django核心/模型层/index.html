@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>03 模型层 - Django使用指南</title>
+  <title>03 模型层1-ORM介绍及单表操作 - Django使用指南</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "03 \u6a21\u578b\u5c42";
+    var mkdocs_page_name = "03 \u6a21\u578b\u5c421-ORM\u4ecb\u7ecd\u53ca\u5355\u8868\u64cd\u4f5c";
     var mkdocs_page_input_path = "Django\u6838\u5fc3/\u6a21\u578b\u5c42.md";
     var mkdocs_page_url = null;
   </script>
@@ -67,18 +67,64 @@
                 </li>
                 <li class=" current">
                     
-    <a class="current" href="./">03 模型层</a>
+    <a class="current" href="./">03 模型层1-ORM介绍及单表操作</a>
     <ul class="subnav">
             
+    <li class="toctree-l3"><a href="#orm">ORM简介</a></li>
+    
+
+    <li class="toctree-l3"><a href="#sqldjangoorm">原生SQL与Django中ORM的对比</a></li>
+    
+
+    <li class="toctree-l3"><a href="#djangoorm">Django中ORM的说明</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_1">数据库同步指令解析</a></li>
+    
+
+    <li class="toctree-l3"><a href="#queryset">QuerySet方法大全</a></li>
+    
+
+    <li class="toctree-l3"><a href="#distinctvaluesvalues_list">distinct的说明与values/values_list的机制</a></li>
+    
+
+    <li class="toctree-l3"><a href="#mysql">在MySQL数据库中查询日期的问题</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_2">自定义字段</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_3">单表操作准备</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_4">单表操作之添加表记录</a></li>
+    
+
+    <li class="toctree-l3"><a href="#api">单表的查询之查询的API</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_5">单表的查询之带双下划线的模糊查询</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_6">单表操作之删除与修改记录</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_7">单表操作之单表下的分组查询</a></li>
+    
+
     </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="../模板层/">04 模板层</a>
+    <a class="" href="../ORM多表/">04 模型层2-ORM多表操作</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../中间件/">05 中间件</a>
+    <a class="" href="../模板层/">05 模板层</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../中间件/">06 中间件</a>
                 </li>
     </ul>
 	    </li>
@@ -153,7 +199,7 @@
         
       
     
-    <li>03 模型层</li>
+    <li>03 模型层1-ORM介绍及单表操作</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -163,7 +209,890 @@
           <div role="main">
             <div class="section">
               
-                
+                <h3 id="orm">ORM简介</h3>
+<p>MTV框架包含一个重要的部分就是ORM——对象关系映射（Object Relational Mapping），它实现了数据模型与数据库的解耦，即数据模型的设计不需要依赖于特定的数据库，通过简单的配置就可以轻松更换数据库，这极大的减轻了开发人员的工作量，不需要面对因数据库变更而导致的无效劳动。 </p>
+<p>数据库必须提前创建好，然后ORM再在数据库中进行表的操作，因为ORM不能对数据库进行操作，不能创建与删除数据库。虽然多了一步ORM翻译成sql的过程，效率看起来低了，但是实际中没有太大的损伤，当你<code>不能忍</code>的时候，你可以<code>在Django中执行原生sql</code>，一般的场景ORM都够用了，开发起来速度更快，写法更贴近应用程序开发。</p>
+<h3 id="sqldjangoorm">原生SQL与Django中ORM的对比</h3>
+<p><strong>SQL中的表操作</strong></p>
+<pre><code class="python">#创建表:
+CREATE TABLE employee(                                     
+    id INT PRIMARY KEY auto_increment ,                    
+    name VARCHAR (20),                                      
+    gender BIT default 1,                                  
+    birthday DATA ,                                         
+    department VARCHAR (20),                                
+    salary DECIMAL (8,2) unsigned,                          
+  );                                                
+
+#添加一条表纪录:                                                          
+  INSERT employee (name,gender,birthday,salary,department)            
+  VALUES   
+  (&quot;whw&quot;,1,&quot;1992-12-12&quot;,8000,&quot;IT&quot;);               
+
+#查询一条表纪录:                                                           
+SELECT * FROM employee WHERE age=24;                               
+
+#更新一条表纪录:                                                           
+UPDATE employee SET birthday=&quot;1991-10-24&quot; WHERE id=1;              
+
+#删除一条表纪录:                                                          
+DELETE FROM employee WHERE name=&quot;whw&quot;;   
+</code></pre>
+
+<p><strong>Django中ORM的操作</strong></p>
+<pre><code class="python">#创建表
+class Employee(models.Model):
+     id=models.AutoField(primary_key=True)
+     name=models.CharField(max_length=32)
+     gender=models.BooleanField()
+     birthday=models.DateField()
+     department=models.CharField(max_length=32)
+     salary=models.DecimalField(max_digits=8,decimal_places=2)
+
+#添加一条表纪录:
+emp=Employee(name=&quot;whw&quot;,gender=True,birthday=&quot;1991-12-12&quot;,epartment=&quot;IT&quot;)
+emp.save()
+
+#查询一条表纪录:
+Employee.objects.filter(age=24)
+
+#更新一条表纪录:
+Employee.objects.filter(id=1).update(birthday=&quot;1991-10-24&quot;)
+
+#删除一条表纪录:
+Employee.objects.filter(name=&quot;whw&quot;).delete()
+</code></pre>
+
+<h3 id="djangoorm">Django中ORM的说明</h3>
+<p>在本教程的<a href="../../Django框架入门/">Django框架入门</a>的部分为大家详细介绍了<code>Django与MySQL的交互</code>与<code>ORM的简单使用</code>，这里就不再重复说明创建文件、连接数据库、生成Model这些步骤了，大家可以到本教程的入门部分详细回顾一下具体的内容。这里为大家详细说明一下Django中ORM的细节知识点。</p>
+<p><strong>ORM字段与数据库实际字段的对应关系</strong></p>
+<p>我们在创建Model的类中的字段会在执行数据库迁移指令的时候自动将Model中的字段转换为MySQL数据库中的字段，它们的对应关系如下：</p>
+<pre><code class="python"># 这个对应关系在你python3安装目录下：
+# site-packages/django/db/mysql/base.py文件里的一个data_types字典里：
+# This dictionary maps Field objects to their associated MySQL column
+# types, as strings. Column-type strings can contain format strings; they'll
+# be interpolated against the values of Field.__dict__ before being output.
+# If a column type is set to None, it won't be included in the output.
+data_types = {
+    'AutoField': 'integer AUTO_INCREMENT',
+    'BigAutoField': 'bigint AUTO_INCREMENT',
+    'BinaryField': 'longblob',
+    'BooleanField': 'bool',
+    'CharField': 'varchar(%(max_length)s)',
+    'DateField': 'date',
+    'DateTimeField': 'datetime(6)',
+    'DecimalField': 'numeric(%(max_digits)s, %(decimal_places)s)',
+    'DurationField': 'bigint',
+    'FileField': 'varchar(%(max_length)s)',
+    'FilePathField': 'varchar(%(max_length)s)',
+    'FloatField': 'double precision',
+    'IntegerField': 'integer',
+    'BigIntegerField': 'bigint',
+    'IPAddressField': 'char(15)',
+    'GenericIPAddressField': 'char(39)',
+    'NullBooleanField': 'bool',
+    'OneToOneField': 'integer',
+    'PositiveIntegerField': 'integer UNSIGNED',
+    'PositiveSmallIntegerField': 'smallint UNSIGNED',
+    'SlugField': 'varchar(%(max_length)s)',
+    'SmallIntegerField': 'smallint',
+    'TextField': 'longtext',
+    'TimeField': 'time(6)',
+    'UUIDField': 'char(32)',
+}
+</code></pre>
+
+<p><strong>ORM常用的字段及说明</strong></p>
+<pre><code class="python">&lt;1&gt; CharField
+        字符串字段, 用于较短的字符串.
+        CharField 要求必须有一个参数 maxlength, 用于从数据库层和Django校验层限制该字段所允许的最大字符数.
+
+&lt;2&gt; IntegerField
+       #用于保存一个整数.
+
+&lt;3&gt; FloatField
+        一个浮点数. 必须 提供两个参数:
+
+        参数    描述
+        max_digits    总位数(不包括小数点和符号)
+        decimal_places    小数位数
+                举例来说, 要保存最大值为 999 (小数点后保存2位),你要这样定义字段:
+
+                models.FloatField(..., max_digits=5, decimal_places=2)
+                要保存最大值一百万(小数点后保存10位)的话,你要这样定义:
+
+                models.FloatField(..., max_digits=17, decimal_places=10) #max_digits大于等于17就能存储百万以上的数了
+                admin 用一个文本框(&lt;input type=&quot;text&quot;&gt;)表示该字段保存的数据.
+
+&lt;4&gt; AutoField
+        一个 IntegerField, 添加记录时它会自动增长. 你通常不需要直接使用这个字段;
+        自定义一个主键：my_id=models.AutoField(primary_key=True)
+        如果你不指定主键的话,系统会自动添加一个主键字段到你的 model.
+
+&lt;5&gt; BooleanField
+        A true/false field. admin 用 checkbox 来表示此类字段.
+
+&lt;6&gt; TextField
+        一个容量很大的文本字段.
+        admin 用一个 &lt;textarea&gt; (文本区域)表示该字段数据.(一个多行编辑框).
+
+&lt;7&gt; EmailField
+        一个带有检查Email合法性的 CharField,不接受 maxlength 参数.
+
+&lt;8&gt; DateField
+        一个日期字段. 共有下列额外的可选参数:
+        Argument    描述
+        auto_now    当对象被保存时,自动将该字段的值设置为当前时间.通常用于表示 &quot;last-modified&quot; 时间戳.
+        auto_now_add    当对象首次被创建时,自动将该字段的值设置为当前时间.通常用于表示对象创建时间.
+        （仅仅在admin中有意义...)
+
+&lt;9&gt; DateTimeField
+         一个日期时间字段. 类似 DateField 支持同样的附加选项.
+
+&lt;10&gt; ImageField
+        类似 FileField, 不过要校验上传对象是否是一个合法图片.#它有两个可选参数:height_field和width_field,
+        如果提供这两个参数,则图片将按提供的高度和宽度规格保存.    
+&lt;11&gt; FileField
+     一个文件上传字段.
+     要求一个必须有的参数: upload_to, 一个用于保存上载文件的本地文件系统路径. 这个路径必须包含 strftime #formatting,
+     该格式将被上载文件的 date/time
+     替换(so that uploaded files dont fill up the given directory).
+     admin 用一个&lt;input type=&quot;file&quot;&gt;部件表示该字段保存的数据(一个文件上传部件) .
+
+注意：在一个 model 中使用 FileField 或 ImageField 需要以下步骤:
+    （1）在你的 settings 文件中, 定义一个完整路径给 MEDIA_ROOT 以便让 Django在此处保存上传文件.
+    (出于性能考虑,这些文件并不保存到数据库.) 定义MEDIA_URL 作为该目录的公共 URL. 要确保该目录对
+    WEB服务器用户帐号是可写的.
+    （2） 在你的 model 中添加 FileField 或 ImageField, 并确保定义了 upload_to 选项,以告诉 Django
+    使用 MEDIA_ROOT 的哪个子目录保存上传文件.你的数据库中要保存的只是文件的路径(相对于 MEDIA_ROOT).
+    出于习惯你一定很想使用 Django 提供的 get_&lt;#fieldname&gt;_url 函数.举例来说,如果你的 ImageField
+    叫作 mug_shot, 你就可以在模板中以 {{ object.#get_mug_shot_url }} 这样的方式得到图像的绝对路径.
+
+&lt;12&gt; URLField
+      用于保存 URL. 若 verify_exists 参数为 True (默认), 给定的 URL 会预先检查是否存在( 即URL是否被有效装入且
+      没有返回404响应).
+      admin 用一个 &lt;input type=&quot;text&quot;&gt; 文本框表示该字段保存的数据(一个单行编辑框)
+
+&lt;13&gt; NullBooleanField
+       类似 BooleanField, 不过允许 NULL 作为其中一个选项. 推荐使用这个字段而不要用 BooleanField 加 null=True 选项
+       admin 用一个选择框 &lt;select&gt; (三个可选择的值: &quot;Unknown&quot;, &quot;Yes&quot; 和 &quot;No&quot; ) 来表示这种字段数据.
+
+&lt;14&gt; SlugField
+     &quot;Slug&quot; 是一个报纸术语. slug 是某个东西的小小标记(短签), 只包含字母,数字,下划线和连字符.#它们通常用于URLs
+     若你使用 Django 开发版本,你可以指定 maxlength. 若 maxlength 未指定, Django 会使用默认长度: 50. 
+     在以前的 Django 版本,没有任何办法改变50 这个长度.这暗示了 db_index=True.
+
+&lt;15&gt; XMLField
+        一个校验值是否为合法XML的 TextField,必须提供参数: schema_path, 它是一个用来校验文本的 RelaxNG schema #的文件系统路径.
+
+&lt;16&gt; FilePathField
+        可选项目为某个特定目录下的文件名. 支持三个特殊的参数, 其中第一个是必须提供的.
+        参数    描述
+        path    必需参数. 一个目录的绝对文件系统路径. FilePathField 据此得到可选项目.
+        Example: &quot;/home/images&quot;.
+        match    可选参数. 一个正则表达式, 作为一个字符串, FilePathField 将使用它过滤文件名. 
+        注意这个正则表达式只会应用到 base filename 而不是
+        路径全名. Example: &quot;foo.*\.txt^&quot;, 将匹配文件 foo23.txt 却不匹配 bar.txt 或 foo23.gif.
+        recursive可选参数.要么 True 要么 False. 默认值是 False. 是否包括 path 下面的全部子目录.
+        这三个参数可以同时使用.
+        match 仅应用于 base filename, 而不是路径全名. 那么,这个例子:
+        FilePathField(path=&quot;/home/images&quot;, match=&quot;foo.*&quot;, recursive=True)
+        ...会匹配 /home/images/foo.gif 而不匹配 /home/images/foo/bar.gif
+
+&lt;17&gt; IPAddressField
+        一个字符串形式的 IP 地址, (i.e. &quot;24.124.1.30&quot;).
+&lt;18&gt; CommaSeparatedIntegerField
+        用于存放逗号分隔的整数值. 类似 CharField, 必须要有maxlength参数.
+
+</code></pre>
+
+<h3 id="_1">数据库同步指令解析</h3>
+<p><strong>数据库同步指令如下：</strong></p>
+<pre><code class="python"># 生成记录，每次修改了models里面的内容或者添加了新的app
+# 新的app里面写了models里面的内容，都要执行这两条
+python manage.py makemigrations  
+# 执行上面这个语句的记录来创建表，生成的表名字前面会自带应用的名字
+# 例如：你的book表在mysql里面叫做app01_book表
+python manage.py migrate         
+</code></pre>
+
+<p><strong>关于同步指令执行的原理及迁移失败的可能原因：</strong></p>
+<pre><code class="python">1-在执行 python manager.py magrations时django会在相应的app的migration文件夹下面生成一个python脚本文件。 
+
+2-在执行 python manager.py migrate时django才会生成数据库表，django根据 migration下面的脚本文件来生成数据表的。
+ 经过多次迁移的话，每个migration文件夹下面有多个脚本，在django中有一张django-migrations表，
+ 表中记录了已经执行的脚本，对于表中没有的就是还没执行的脚本，在执行migrate的时候就只执行表中没有记录的那些脚本。
+
+3-有时在执行 migrate的时候如果发现没有生成相应的表，可以看看在 django-migrations表中看看脚本是否已经执行了，
+可以删除django-migrations表中的相关记录，然后重新执行。
+</code></pre>
+
+<h3 id="queryset">QuerySet方法大全</h3>
+<p>ORM查询中会得到一个<code>QuerySet对象</code>，得到这个对象我们可以做进一步的查询（连表、去重等等），这里罗列一下Query的所有方法（都是在源码中找的）：</p>
+<pre><code class="python">##################################################################
+# PUBLIC METHODS THAT ALTER ATTRIBUTES AND RETURN A NEW QUERYSET #
+##################################################################
+
+def all(self)
+    # 获取所有的数据对象
+
+def filter(self, *args, **kwargs)
+    # 条件查询
+    # 条件可以是：参数，字典，Q
+
+def exclude(self, *args, **kwargs)
+    # 条件查询
+    # 条件可以是：参数，字典，Q
+
+def select_related(self, *fields)
+    性能相关：表之间进行join连表操作，一次性获取关联的数据。
+
+    总结：
+    1. select_related主要针一对一和多对一关系进行优化。
+    2. select_related使用SQL的JOIN语句进行优化，通过减少SQL查询的次数来进行优化、提高性能。
+
+def prefetch_related(self, *lookups)
+    性能相关：多表连表操作时速度会慢，使用其执行多次SQL查询在Python代码中实现连表操作。
+
+    总结：
+    1. 对于多对多字段（ManyToManyField）和一对多字段，可以使用prefetch_related()来进行优化。
+    2. prefetch_related()的优化方式是分别查询每个表，然后用Python处理他们之间的关系。
+
+def annotate(self, *args, **kwargs)
+    # 用于实现聚合group by查询
+
+    from django.db.models import Count, Avg, Max, Min, Sum
+
+    v = models.UserInfo.objects.values('u_id').annotate(uid=Count('u_id'))
+    # SELECT u_id, COUNT(ui) AS `uid` FROM UserInfo GROUP BY u_id
+
+    v = models.UserInfo.objects.values('u_id').annotate(uid=Count('u_id')).filter(uid__gt=1)
+    # SELECT u_id, COUNT(ui_id) AS `uid` FROM UserInfo GROUP BY u_id having count(u_id) &gt; 1
+
+    v = models.UserInfo.objects.values('u_id').annotate(uid=Count('u_id',distinct=True)).filter(uid__gt=1)
+    # SELECT u_id, COUNT( DISTINCT ui_id) AS `uid` FROM UserInfo GROUP BY u_id having count(u_id) &gt; 1
+
+def distinct(self, *field_names)
+    # 用于distinct去重
+    models.UserInfo.objects.values('nid').distinct()
+    # select distinct nid from userinfo
+
+    注：只有在PostgreSQL中才能使用distinct进行去重
+
+def order_by(self, *field_names)
+    # 用于排序
+    models.UserInfo.objects.all().order_by('-id','age')
+
+def extra(self, select=None, where=None, params=None, tables=None, order_by=None, select_params=None)
+    # 构造额外的查询条件或者映射，如：子查询
+
+    Entry.objects.extra(select={'new_id': &quot;select col from sometable where othercol &gt; %s&quot;}, select_params=(1,))
+    Entry.objects.extra(where=['headline=%s'], params=['Lennon'])
+    Entry.objects.extra(where=[&quot;foo='a' OR bar = 'a'&quot;, &quot;baz = 'a'&quot;])
+    Entry.objects.extra(select={'new_id': &quot;select id from tb where id &gt; %s&quot;}, select_params=(1,), order_by=['-nid'])
+
+ def reverse(self):
+    # 倒序
+    models.UserInfo.objects.all().order_by('-nid').reverse()
+    # 注：如果存在order_by，reverse则是倒序，如果多个排序则一一倒序
+
+
+ def defer(self, *fields):
+    models.UserInfo.objects.defer('username','id')
+    或
+    models.UserInfo.objects.filter(...).defer('username','id')
+    #映射中排除某列数据
+
+ def only(self, *fields):
+    #仅取某个表中的数据
+     models.UserInfo.objects.only('username','id')
+     或
+     models.UserInfo.objects.filter(...).only('username','id')
+
+ def using(self, alias):
+     指定使用的数据库，参数为别名（setting中的设置）
+
+
+##################################################
+# PUBLIC METHODS THAT RETURN A QUERYSET SUBCLASS #
+##################################################
+
+def raw(self, raw_query, params=None, translations=None, using=None):
+    # 执行原生SQL
+    models.UserInfo.objects.raw('select * from userinfo')
+
+    # 如果SQL是其他表时，必须将名字设置为当前UserInfo对象的主键列名
+    models.UserInfo.objects.raw('select id as nid from 其他表')
+
+    # 为原生SQL设置参数
+    models.UserInfo.objects.raw('select id as nid from userinfo where nid&gt;%s', params=[12,])
+
+    # 将获取的到列名转换为指定列名
+    name_map = {'first': 'first_name', 'last': 'last_name', 'bd': 'birth_date', 'pk': 'id'}
+    Person.objects.raw('SELECT * FROM some_other_table', translations=name_map)
+
+    # 指定数据库
+    models.UserInfo.objects.raw('select * from userinfo', using=&quot;default&quot;)
+
+    ################### 原生SQL ###################
+    from django.db import connection, connections
+    cursor = connection.cursor()  # cursor = connections['default'].cursor()
+    cursor.execute(&quot;&quot;&quot;SELECT * from auth_user where id = %s&quot;&quot;&quot;, [1])
+    row = cursor.fetchone() # fetchall()/fetchmany(..)
+
+
+def values(self, *fields):
+    # 获取每行数据为字典格式
+
+def values_list(self, *fields, **kwargs):
+    # 获取每行数据为元祖
+
+def dates(self, field_name, kind, order='ASC'):
+    # 根据时间进行某一部分进行去重查找并截取指定内容
+    # kind只能是：&quot;year&quot;（年）, &quot;month&quot;（年-月）, &quot;day&quot;（年-月-日）
+    # order只能是：&quot;ASC&quot;  &quot;DESC&quot;
+    # 并获取转换后的时间
+        - year : 年-01-01
+        - month: 年-月-01
+        - day  : 年-月-日
+
+    models.DatePlus.objects.dates('ctime','day','DESC')
+
+def datetimes(self, field_name, kind, order='ASC', tzinfo=None):
+    # 根据时间进行某一部分进行去重查找并截取指定内容，将时间转换为指定时区时间
+    # kind只能是 &quot;year&quot;, &quot;month&quot;, &quot;day&quot;, &quot;hour&quot;, &quot;minute&quot;, &quot;second&quot;
+    # order只能是：&quot;ASC&quot;  &quot;DESC&quot;
+    # tzinfo时区对象
+    models.DDD.objects.datetimes('ctime','hour',tzinfo=pytz.UTC)
+    models.DDD.objects.datetimes('ctime','hour',tzinfo=pytz.timezone('Asia/Shanghai'))
+
+    &quot;&quot;&quot;
+    pip3 install pytz
+    import pytz
+    pytz.all_timezones
+    pytz.timezone(‘Asia/Shanghai’)
+    &quot;&quot;&quot;
+
+def none(self):
+    # 空QuerySet对象
+
+####################################
+# METHODS THAT DO DATABASE QUERIES #
+####################################
+
+def aggregate(self, *args, **kwargs):
+   # 聚合函数，获取字典类型聚合结果
+   from django.db.models import Count, Avg, Max, Min, Sum
+   result = models.UserInfo.objects.aggregate(k=Count('u_id', distinct=True), n=Count('nid'))
+   ===&gt; {'k': 3, 'n': 4}
+
+def count(self):
+   # 获取个数
+
+def get(self, *args, **kwargs):
+   # 获取单个对象
+
+def create(self, **kwargs):
+   # 创建对象
+
+def bulk_create(self, objs, batch_size=None):
+    # 批量插入
+    # batch_size表示一次插入的个数
+    objs = [
+        models.DDD(name='r11'),
+        models.DDD(name='r22')
+    ]
+    models.DDD.objects.bulk_create(objs, 10)
+
+def get_or_create(self, defaults=None, **kwargs):
+    # 如果存在，则获取，否则，创建
+    # defaults 指定创建时，其他字段的值
+    obj, created = models.UserInfo.objects.get_or_create(username='root1', defaults={'email': '1111111','u_id': 2, 't_id': 2})
+
+def update_or_create(self, defaults=None, **kwargs):
+    # 如果存在，则更新，否则，创建
+    # defaults 指定创建时或更新时的其他字段
+    obj, created = models.UserInfo.objects.update_or_create(username='root1', defaults={'email': '1111111','u_id': 2, 't_id': 1})
+
+def first(self):
+   # 获取第一个
+
+def last(self):
+   # 获取最后一个
+
+def in_bulk(self, id_list=None):
+   # 根据主键ID进行查找
+   id_list = [11,21,31]
+   models.DDD.objects.in_bulk(id_list)
+
+def delete(self):
+   # 删除
+
+def update(self, **kwargs):
+    # 更新
+
+def exists(self):
+   # 是否有结果
+
+</code></pre>
+
+<h3 id="distinctvaluesvalues_list">distinct的说明与values/values_list的机制</h3>
+<p><strong>关于distinct的说明：</strong></p>
+<p>1、必须先用values/values_list筛选出数据后再进行去重；</p>
+<p>2、如果不先筛选，将全部数据进行distinct()的操作，由于id肯定不一样，所以这样做没有意义！</p>
+<p><strong>values的用法和返回结果举例</strong></p>
+<pre><code class="python">all_books = models.Book.objects.all().values('id','title')
+print(all_books) 
+# &lt;QuerySet [{'title': 'linux', 'id': 6}, {'title': '你好', 'id': 7}, {'title': 'linux', 'id': 8}, {'title': 'xxx', 'id': 9}, {'title': 'gogogo', 'id': 10}]&gt;
+'''
+values做的事情：
+ret = [] #queryset类型
+for obj in Book.objects.all():
+temp = { #元素是字典类型
+'id':obj.id,
+'title':obj.title
+}
+ret.append(temp)
+'''
+</code></pre>
+
+<p><strong>values_list的用法和返回结果说明</strong></p>
+<pre><code class="python">all_books = models.Book.objects.all().values_list('id','title')
+print(all_books) 
+#&lt;QuerySet [(6, 'linux'), (7, '你好'), (8, 'linux'), (9, 'xxx'), (10, 'gogogo')]&gt;
+'''
+values做的事情：
+ret = [] #queryset类型
+for obj in Book.objects.all():
+temp = ( #元素是元祖类型
+obj.id,obj.title
+)
+ret.append(temp)
+'''
+</code></pre>
+
+<p><strong>distinct的用法和返回结果说明</strong></p>
+<pre><code class="python">'''
+all_books = models.Book.objects.all().distinct() #这样写是表示记录中所有的字段重复才叫重复，
+但是我们知道有主键的存在，所以不可能所有字段数据都重复
+all_books = models.Book.objects.all().distinct('price') #报错，不能在distinct里面加字段名称
+all_books = models.Book.objects.all().values('price').distinct()#&lt;QuerySet [(Decimal('11.00'),), (Decimal('111.00'),), (Decimal('120.00'),), (Decimal('11111.00'),)]&gt;
+'''
+
+all_books = models.Book.objects.all().values_list('price').distinct()
+# &lt;QuerySet [{'price': Decimal('11.00')}, {'price': Decimal('111.00')}, {'price': Decimal('120.00')}, {'price': Decimal('11111.00')}]&gt; 
+# 只能用于valuse和values_list进行去重
+
+# title和price两个同时重复才算一条重复的记录
+all_books = models.Book.objects.all().values_list('title','price').distinct() 
+</code></pre>
+
+<h3 id="mysql">在MySQL数据库中查询日期的问题</h3>
+<pre><code class="python"># 找2012年的所有书籍
+all_books = models.Book.objects.filter(pub_date__year=2012)
+
+# 找大于等于2012年的所有书籍
+all_books = models.Book.objects.filter(pub_date__year__gte=2012)
+
+
+# 找2019年月份的所有书籍，如果明明有结果，你却查不出结果，是因为mysql数据库的时区和咱们django的时区不同导致的，
+# 你需要做的就是将django中的settings配置文件里面的USE_TZ = True改为False，就可以查到结果了，
+# 以后这个值就改为False，而且就是因为我们用的mysql数据库才会有这个问题，其他数据库没有这个问题。
+all_books = models.Book.objects.filter(pub_date__year=2019,pub_date__month=2)
+</code></pre>
+
+<h3 id="_2">自定义字段</h3>
+<p>用的比较少，记录一下吧:</p>
+<pre><code class="python">class UnsignedIntegerField(models.IntegerField):
+    def db_type(self, connection):
+        return 'integer UNSIGNED'
+</code></pre>
+
+<p>自定义char类型字段：</p>
+<pre><code class="python">class FixedCharField(models.Field):
+    &quot;&quot;&quot;
+    自定义的char类型的字段类
+    &quot;&quot;&quot;
+    def __init__(self, max_length, *args, **kwargs):
+        super().__init__(max_length=max_length, *args, **kwargs)
+        self.length = max_length
+
+    def db_type(self, connection):
+        &quot;&quot;&quot;
+        限定生成数据库表的字段类型为char，长度为length指定的值
+        &quot;&quot;&quot;
+        return 'char(%s)' % self.length
+
+
+class Class(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=25)
+    # 使用上面自定义的char类型的字段
+    cname = FixedCharField(max_length=25)
+</code></pre>
+
+<h3 id="_3">单表操作准备</h3>
+<p>项目的创建、app的创建及注册、MySQL的连接配置这里就不赘述了，有不明白的请到<a href="../../Django框架入门/">Django框架入门</a>查看。</p>
+<p>我们先创建一个单表的model，存放书籍的信息：</p>
+<pre><code class="python">from django.db import models
+# Create your models here.
+#注意这个Book类必须继承models.Model
+class Book(models.Model):
+    #AutoField为自增对象，括号里面的是限定条件
+    id = models.AutoField(primary_key=True)
+    #CharField为一个字符串，括号里面表示它的最大长度
+    title = models.CharField(max_length=32)
+    state = models.BooleanField()
+    #DateField是存日期的
+    pub_date =models.DateField()
+    #DecimalField是一个浮点型：max_digits为最大的位数，但是有两位是小数——111111.11
+    price = models.DecimalField(max_digits=8,decimal_places=2)
+    publish = models.CharField(max_length=32)
+
+    #打印这个类展示的是它的title
+    def __str__(self):
+        return self.title
+</code></pre>
+
+<p><strong>如果想打印orm转换过程中的sql，需要在<code>settings</code>中进行如下配置：</strong></p>
+<pre><code class="python">LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console':{
+                'level':'DEBUG',
+                'class':'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django.db.backends': {
+                'handlers': ['console'],
+                'propagate': True,
+                'level':'DEBUG',
+            },
+        }
+    }
+</code></pre>
+
+<p><strong>还有另外一种查看SQL语句的方式：</strong></p>
+<pre><code class="python"># 在视图函数中操作
+from book import models
+
+def add_book(request):
+    '''
+    添加表记录
+    :param request: http请求信息
+    :return:
+    '''
+    book_obj = models.Book(title='python',price=123,pub_date='2012-12-12',publish='人民出版社')
+    book_obj.save()
+    # 通过这种方式也能查看执行的sql语句
+    from django.db import connection  
+    print(connection.queries)
+    return HttpResponse('ok')
+</code></pre>
+
+<h3 id="_4">单表操作之添加表记录</h3>
+<p><strong>方式一(推荐):</strong></p>
+<pre><code class="python">#注意日期按照这个格式来！
+book_obj=models.Book.objects.create(title='Python葵花宝典',state=True,price=100,publish='苹果出版社',pub_date='2015-12-13')
+#打印title...
+print(book_obj.title)
+</code></pre>
+
+<p>注意create是有返回值的，create方法的返回值book_obj就是插入book表中的python葵花宝典这本书籍纪录对象</p>
+<p><strong>方式二</strong>:</p>
+<pre><code class="python">book_obj=Book(title=&quot;python葵花宝典&quot;,state=True,price=100,publish=&quot;苹果出版社&quot;,pub_date=&quot;2012-12-12&quot;)
+book_obj.save()
+</code></pre>
+
+<p><strong>方式三:批量插入</strong></p>
+<pre><code class="python">book_list = []
+    for i in range(10):
+        bk_obj = models.Book(
+            name='chao%s'%i,
+            addr='北京%s'%i
+        )
+        book_list.append(bk_obj)
+
+    models.Book.objects.bulk_create(book_list) #批量插入，速度快
+</code></pre>
+
+<p><strong>方式四:update_or_create--有就更新，没有就创建</strong></p>
+<pre><code class="python">obj,created = models.UserToken.objects.update_or_create(
+    user=user, # 查找筛选条件
+    defaults={ # 添加或者更新的数据
+　　　　　　&quot;token&quot;:random_str,
+　　　　}
+    )    
+'''
+说明：
+1、第一个值obj为：新创建的model对象
+2、第二个值created为：是否进行了新的数据的插入的操作，只是更新原始数据为false，新加入数据为true！
+3、如果查询到多条数据，那么就会报错！因为源码里面用的是get方法！可以用异常处理！
+'''
+</code></pre>
+
+<h3 id="api">单表的查询之查询的API</h3>
+<p>前4个最重要，5--9比较容易，10中的三个方法比较难也非常重要！</p>
+<p>一定要知道每个方法的返回值是什么，以及每个方法是由谁来调用的</p>
+<p><strong>(1)all()</strong></p>
+<p>models.Book.objects来调用，返回的是QuerySet类型的对象——django自己定义的数据类型
+将查询出来的查询出来的所有对象放在列表中
+在models的Book类中写了__str__方法，且__str__返回的是title的值，所以后面会打印title</p>
+<pre><code class="python">book_list = models.Book.objects.all()
+print(book_list)
+#遍历这个字典可以进行相应的取值操作
+for i in book_list:
+    print(i.title,i.price)
+#也可以进行索引操作
+print(book_list[0].pub_date)
+</code></pre>
+
+<p><strong>(2)first与last</strong></p>
+<p>返回值不是QuerySet对象，而是model对象，等价于book_list[0]
+调用者是QuerySet对象</p>
+<pre><code class="python">book_first = models.Book.objects.first()
+print(book_first)
+</code></pre>
+
+<p><strong>(3)filter方法</strong></p>
+<p>对应where语句
+调用者objects，返回值是QuerySet对象</p>
+<pre><code class="python">    book_list2 = models.Book.objects.filter(price=100)
+    print(book_list2)
+</code></pre>
+
+<p>(3-1)可以跟first或者last方法</p>
+<pre><code class="python">book_list2_last = models.Book.objects.filter(price=100).last()
+print(book_list2_last.pubdate)
+</code></pre>
+
+<p>(3-2)可以带多个多虑条件</p>
+<pre><code class="python">book_list2_more = models.Book.objects.filter(price=100,title='西游记')
+print(book_list2_more)
+</code></pre>
+
+<p><strong>(4)get方法</strong></p>
+<p>很像filter，但是，get方法有且只有一个查询结果是才有意义；如果有多个查询结果会报错!
+返回值是一个model对象，利用objects调用!</p>
+<pre><code class="python">book_get = models.Book.objects.get(title='西游记')
+print(book_get)
+</code></pre>
+
+<p>(5)exclude方法</p>
+<p>排除——得到的是个QuerySet对象，由objects调用,也可以用QuerySet对象调用
+models调用：</p>
+<pre><code class="python">book_exclude = models.Book.objects.exclude(title='西游记')
+print(book_exclude)
+</code></pre>
+
+<p>QuerySet调用：</p>
+<pre><code class="python">ret = models.Book.objects.filter(price=11).exclude(id=2)
+print(ret)
+</code></pre>
+
+<p><strong>(6)order_by排序</strong></p>
+<p>得到的是QuerySet对象，由objects调用
+(6-1)默认升序</p>
+<pre><code class="python">book_order_by_asc = models.Book.objects.order_by('title')
+print('升序：',book_order_by_asc)
+</code></pre>
+
+<p>(6-2)降序排序</p>
+<pre><code class="python">book_order_by_desc = models.Book.objects.order_by('-title')
+print('降序：',book_order_by_desc)
+</code></pre>
+
+<p>(6-3)也可以利用两个字段排序：——第一个字段相等的时候再用第二个字段排序</p>
+<pre><code>book_order_by1 = models.Book.objects.order_by('title','price')
+print('两个字段排序：',book_order_by1)
+</code></pre>
+
+<p><strong>(7)reverse反转</strong></p>
+<p>可以在order_by的基础上加上reverse</p>
+<pre><code class="python">book_reverse = models.Book.objects.order_by('title').reverse()
+print('排序反转：',book_reverse)
+</code></pre>
+
+<p><strong>(8)count计数</strong></p>
+<p>返回int类型的数据，调用者是QuerySet</p>
+<pre><code class="python">count = models.Book.objects.all().count()
+print('数据的总数：',(count,type(count)))
+</code></pre>
+
+<p><strong>(9)exists检测是否存在记录</strong></p>
+<p>如果不加exists则表示取出来所有的值了，没必要取所有的值，这样效率不高；
+加上exists相当于利用limit限制只取出来一条数据去判断有没有记录。</p>
+<pre><code class="python">ret = models.Book.objects.all().exists()
+if ret:
+    print('OK!有数据！')
+</code></pre>
+
+<p><strong>重点：(10)values(<em>field)、values_list(</em>field)、distinct()</strong></p>
+<p>(10-1)values(*field)
+查询所有书籍的名称：
+得到的是一个QuerySet对象：<code>&lt;QuerySet [{'title': 'Python葵花宝典'}, {'title': 'Python葵花宝典1'}, {'title': '金瓶瓶'}]&gt;</code></p>
+<p>由QuerySet对象调用但是列表中放的不是一个个的对象了，而是一个个的字典！</p>
+<pre><code class="python">book_titles = models.Book.objects.all().values('title')
+print('所有书籍的名称：',book_titles)
+    &quot;&quot;&quot;
+     values的工作原理：
+    现在将values中的参数改为为'title','price'（注意value与value_list中可以放两个参数）
+    temp = []
+    for obj in models.Book.objects.all()
+        temp.append(
+            'title':obj.title,
+            'price':obj.price
+        )
+    return temp 
+    &quot;&quot;&quot;
+</code></pre>
+
+<p>(10-1-1)也可以利用操作字典的方法来操作结果：</p>
+<pre><code class="python">book_title_1_title = book_titles[1].get('title')
+print('第二个书籍的名字:',book_title_1_title)   
+</code></pre>
+
+<p>(10-2)values_list(*field)方法
+与value方法一样，调用者与返回值均是QuerySet对象
+但是，value_list的结果是列表里面嵌套元组</p>
+<pre><code class="python">book_values_list = models.Book.objects.all().values_list('title')
+print(book_values_list)
+</code></pre>
+
+<p>(10-3)distinct方法去重</p>
+<pre><code class="python">price_distinct = models.Book.objects.all().values('price').distinct()
+print('price去重：',price_distinct)
+</code></pre>
+
+<h3 id="_5">单表的查询之带双下划线的模糊查询</h3>
+<p><strong>注意要用filter过滤</strong></p>
+<p><strong>(1)查询价格大于100的：gt</strong></p>
+<pre><code>gt_100 = models.Book.objects.filter(price__gt=100)
+print('价格大于100的：',gt_100)
+</code></pre>
+
+<p>注意大于等于的话是<code>gte</code>：</p>
+<pre><code>gte_100 = models.Book.objects.filter(price__gte=100)
+</code></pre>
+
+<p><strong>(2)小于：lt</strong></p>
+<pre><code>lt_10000 = models.Book.objects.filter(price__lt=10000)
+print('价格小于10000的：',lt_10000)
+</code></pre>
+
+<p><strong>(3)大于100小于10000的：</strong></p>
+<pre><code>gt_100_lt_10000 = models.Book.objects.filter(price__gt=100,price__lt=10000)
+print('价格大于100小于10000的:',gt_100_lt_10000)
+</code></pre>
+
+<p><strong>(4)价格包含[100,200,300]这几个的：</strong></p>
+<pre><code>price_in = models.Book.objects.filter(price__in=[100,200,300])
+print('价格包含：',price_in)
+</code></pre>
+
+<p><strong>(5)title以“西”字开头的数据：</strong></p>
+<pre><code>title_starts_xi = models.Book.objects.filter(title__startswith='西')
+print('title以西字开头：',title_starts_xi)
+</code></pre>
+
+<p><strong>(6)包含——contains</strong></p>
+<pre><code>title_contains = models.Book.objects.filter(title__contains='p')
+print('title包含p的：',title_contains)
+</code></pre>
+
+<p><strong>(6-1)忽略大小写的包含——icontains</strong></p>
+<pre><code>title_icontains = models.Book.objects.filter(title__icontains='p')
+print('title包含p或者P的：',title_icontains)
+</code></pre>
+
+<p><strong>(7)在一个范围之内：range</strong></p>
+<pre><code>price_range = models.Book.objects.filter(price__range=[100,10000])
+print('价格在一个范围之内：',price_range)
+</code></pre>
+
+<p><strong>(8)关于日期的模糊查询</strong></p>
+<p><strong>(8-1)过滤一下出版日期是2014年的数据</strong></p>
+<pre><code># 注意只有date类型的字段才有__year
+# 想查找月份就用__month就可以了
+pub_date_2014 = models.Book.objects.filter(pub_date__year=2014)
+print('2014出版的数据：',pub_date_2014)
+</code></pre>
+
+<h3 id="_6">单表操作之删除与修改记录</h3>
+<p><strong>(1)删除：delete</strong></p>
+<p>(1-1)方法一：QuerySet对象调用delete方法</p>
+<pre><code>models.Book.objects.filter(price=100).delete()
+</code></pre>
+
+<p>(1-2)方法二：用model对象</p>
+<pre><code>models.Book.objects.filter(price=100).first().delete()
+</code></pre>
+
+<p><strong>(2)修改：update</strong></p>
+<p>注意必须要用<code>QuerySet对象</code>调用</p>
+<pre><code>models.Book.objects.filter(title='西游记').update(title='水浒传')
+</code></pre>
+
+<h3 id="_7">单表操作之单表下的分组查询</h3>
+<p>新建一个员工表emp，包含：id、name、age、salary、dep(部门名)、province(省份)。</p>
+<p>现在的需求是：查询“每个部门的员工人数”。使用原生SQL可以这样做：</p>
+<pre><code class="sql">select count(id) from emp group by dep;
+</code></pre>
+
+<p>我们看看使用ORM的话如何去做类似的查询。</p>
+<p>models.py文件中的类：</p>
+<pre><code class="python">class Emp(models.Model):
+    name = models.CharField(max_length=32)
+    age = models.IntegerField()
+    salary = models.DecimalField(max_digits=8,decimal_places=2)
+    dep = models.CharField(max_length=32)
+    province = models.CharField(max_length=32)
+</code></pre>
+
+<p><strong>单表分组查询的ORM语法：</strong></p>
+<pre><code class="python"># 注意前面是 values，后面是annotate方法
+单表模型.objects.values('group by的字段').annotate(聚合函数('统计字段'))
+</code></pre>
+
+<p><strong>例1：查询每一个部门的名称以及员工的平均薪水</strong></p>
+<p><code>SQL中</code></p>
+<pre><code>select dep,avg(salary) from emp group by dep
+</code></pre>
+
+<p><code>annotate方法</code></p>
+<p>这里values相当于select</p>
+<pre><code class="python">### 一定要记得引入聚合的方法
+from django.db.models import Avg,Max,Min,Count 
+
+ret = Emp.objects.values('dep').annotate(avg_salary=Avg('salary'))
+print(ret)
+#&lt;QuerySet[{'dep':'安全部','avg_salary':388.5},{'dep':'合格部','avg_salary': 1111.0}]&gt;
+</code></pre>
+
+<p><strong>例2：查询每一个省份的名称及员工数</strong></p>
+<pre><code class="python">ret = Emp.objects.values('province').annotate(c=Count('id'))
+print(ret) 
+#&lt;QuerySet [{'province': '北京', 'c': 1}, {'province':'上海','c':1},{'province': '大连', 'c': 1}]&gt;
+</code></pre>
+
+<p><strong>说明</strong></p>
+<pre><code class="python">1、单表下的分组查询语法(注意是values不是filter)：
+单表模型.objects.values('group by的字段').annotate(聚合函数('统计字段'))
+
+2、在单表分组下，按着主键进行group by 是没有任何意义的！
+
+3、ret = Emp.objects.all()           等价于 select * from emp
+
+4、ret = Emp.objects.values('name')  等价于 select name from emp
+
+5、ret = Emp.objects.values('id').annotate(Avg('salary'))  
+等价于： ret = Emp.objects.all().annotate(Avg('salary'))
+
+# 但是 在单表分组下，按着主键进行group by 是没有任何意义的！
+# 而且，按all()分组也没意义，因为它包含主键。
+</code></pre>
               
             </div>
           </div>
@@ -171,7 +1100,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../模板层/" class="btn btn-neutral float-right" title="04 模板层">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../ORM多表/" class="btn btn-neutral float-right" title="04 模型层2-ORM多表操作">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../视图系统/" class="btn btn-neutral" title="02 视图系统"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -203,7 +1132,7 @@
         <span><a href="../视图系统/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../模板层/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../ORM多表/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>04 模型层2-ORM多表操作 - Django使用指南</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "04 \u6a21\u578b\u5c422-ORM\u591a\u8868\u64cd\u4f5c";
+    var mkdocs_page_input_path = "Django\u6838\u5fc3/ORM\u591a\u8868.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Django使用指南</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Django框架入门/">Django框架入门</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django核心知识点详解</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../路由/">01 路由控制</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../视图系统/">02 视图系统</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../模型层/">03 模型层1-ORM介绍及单表操作</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">04 模型层2-ORM多表操作</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#_1">表字段及表关系</a></li>
+    
+
+    <li class="toctree-l3"><a href="#appmodelspy">在app的models.py文件中创建模型类</a></li>
+    
+
+    <li class="toctree-l3"><a href="#django2">Django2的一个问题</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_2">数据迁移</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_3">添加记录</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_4">多对多修改与删除</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_5">多表操作之基于对象的跨表查询</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_6">多表操作之基于双下划线的跨表查询</a></li>
+    
+
+    <li class="toctree-l3"><a href="#related_name">多表操作之连续跨表与related_name</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_7">多表操作之聚合查询</a></li>
+    
+
+    <li class="toctree-l3"><a href="#fq">多表操作之F查询与Q查询</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_8">多表操作之多表下的分组查询</a></li>
+    
+
+    <li class="toctree-l3"><a href="#_9">一些多表分组查询的练习</a></li>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../模板层/">05 模板层</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../中间件/">06 中间件</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django中常用的组件介绍</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Django组件/Django中contenttypes组件的使用/">contenttypes组件</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Django进阶及其他知识点汇总</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Django进阶/ORM语句的优化/">ORM语句的优化</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">DRF相关</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../DRF相关/认证、权限及访问频率限制/">认证、权限及访问频率限制简介</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">web开发常识</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../123/">123</a>
+                </li>
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Django使用指南</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Django核心知识点详解 &raquo;</li>
+        
+      
+    
+    <li>04 模型层2-ORM多表操作</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h3 id="_1">表字段及表关系</h3>
+<pre><code class="python">(1)作者模型：一个作者有姓名和年龄。
+(2)作者详细模型：把作者的详情放到详情表，包含生日，手机号，家庭住址等信息。
+   # 作者详情模型和作者模型之间是一对一的关系（one-to-one）。
+(3)出版社模型：出版社有名称，所在城市以及email。
+(4)书籍模型： 书籍有书名和出版日期.
+   # 一本书可能会有多个作者，一个作者也可以写多本书，所以作者和书籍的关系就是多对多的关联关系(many-to-many);
+   # 一本书只应该由一个出版商出版，所以出版商和书籍是一对多关联关系(one-to-many)。
+(5)书跟作者是多对多关系，利用Django的建表语句我们可以新生成一张“关系表”——book2author
+</code></pre>
+
+<h3 id="appmodelspy">在app的models.py文件中创建模型类</h3>
+<p><strong>需要记住下面这几个结论</strong>：</p>
+<pre><code class="python">(1)一旦确立表关系是一对多：建立一对多关系————在多对应的表中创建关联字段。
+(2)一旦确立表关系是多对多：建立多对多关系————创建第三张关系表————id和两个关联字段。
+(3)一旦确定表关系是一对一：建立一对一关系————在两张表的任意一张表中建立关联字段+Unique。
+(4)其实上面说的“关联字段”就是外键——foreign key。
+</code></pre>
+
+<p>对应的模型类的创建如下：</p>
+<pre><code class="python">from django.db import models
+
+#出版社
+class Publish(models.Model):
+    #主键
+    nid = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=55)
+    city = models.CharField(max_length=55)
+    #email有特定的格式！
+    email = models.EmailField()
+
+#作者详细
+class AuthorDetail(models.Model):
+    nid = models.AutoField(primary_key=True)
+    #日期的格式
+    birthday = models.DateField()
+    #手机号
+    telephone = models.BigIntegerField()
+    addr = models.CharField(max_length=55)
+
+#作者表
+class Author(models.Model):
+    nid = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=55)
+    #年龄，int类型的小数字就可以
+    age = models.IntegerField()
+    #由于作者与作者详细表是一对一的关系：所以选择在作者表中这样建立外键
+    #注意这里还是只写authordetail就可以了，_id 程序会自动给加的！
+    #注意这里on_delete一定要加！而且to后面的表的名字要习惯性的加上1
+    #一对一！
+    authordetail = models.OneToOneField(to='AuthorDetail',to_field='nid',on_delete=models.CASCADE)
+
+
+#书籍
+class Book(models.Model):
+    nid = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=55)
+    #出版日期，日期格式
+    pub_date = models.DateField()
+    #价格，最大位数5位，小数后保留两位
+    price = models.DecimalField(max_digits=5,decimal_places=2)
+    #与出版社表关联的字段——publish_id
+    #注意自己写的时候只写publish就可以了！Django会自动补上_id
+    #注意：on_delete必须要加上！！！而且to后面的表的名字要习惯性的加上1
+    #注意 null=true表示允许为空值
+    # 一对多！
+    publish = models.ForeignKey(to='Publish',to_field='nid',on_delete=models.CASCADE,null=True)
+    #书跟作者是多对多的关系。理论上需要新建一张关系表。
+    #但是利用Django下面的语句既可以新建一张表，又可以分别将其与书籍表与作者表关联起来！
+    #多对多！
+    authors = models.ManyToManyField(to='Author')
+    &quot;&quot;&quot;
+    create table book2author(
+        id int primary_key auto_increment,
+        book_id int,0
+        author_id int,
+        foreign_key (book_id) references Book(id),
+        foreign_key (author_id) references Author(id),   
+    );
+    &quot;&quot;&quot;
+</code></pre>
+
+<h3 id="django2">Django2的一个问题</h3>
+<p>在Django2中，外键关联的那个属性必须加上<code>on_delete=models.CASCADE</code>，否则数据迁移时会报错！</p>
+<h3 id="_2">数据迁移</h3>
+<p>在terminal中执行数据库的迁移指令：</p>
+<pre><code class="python">python manage.py makemigrations
+python manage.py migrate
+</code></pre>
+
+<p>查看一下MySQL中是否生成了“5”张我们需要的表。</p>
+<p><strong>注意事项：</strong></p>
+<pre><code class="python">(1)表的名称myapp_modelName，是根据 模型中的元数据自动生成的，也可以覆写为别的名称  
+(2)id字段是自动添加的
+(3)对于外键字段，Django 会在字段名上添加&quot;_id&quot; 来创建数据库中的列名
+(4)这个例子中的CREATE TABLE SQL 语句使用PostgreSQL 语法格式，要注意的是Django 会根据settings 中指定的数据库类型来使用相应的SQL语句。
+(5)定义好模型之后，你需要告诉Django _使用_这些模型。你要做的就是修改配置文件中的INSTALL_APPSZ中设置，在其中添加models.py所在应用的名称。
+(6)外键字段 ForeignKey 有一个 null=True 的设置(它允许外键接受空值 NULL)，你可以赋给它空值 None 
+</code></pre>
+
+<h3 id="_3">添加记录</h3>
+<p>先使用sql语句在publish、author、authordetail表中加几条数据。</p>
+<p><strong>批量创建数据库数据</strong></p>
+<pre><code class="python">book_list = []
+for i in range(100):
+    book = Book(title='book_%s'%i,price=i*i)
+    book_list.append(book)
+#批量创建：bulk_create()
+Book.objects.bulk_create(book_list)
+</code></pre>
+
+<p><strong>1、一对多添加记录</strong></p>
+<p>在book表中新增一条记录，由于publish表与book表是一对多的关系，关联字段为publish_id，因此我们先得找到对应的出版社，
+这里有两种方法：</p>
+<p><code>方法一：</code></p>
+<pre><code class="python">publish_obj = Publish.objects.get(nid=1)
+Book.objects.create(title='金瓶',price=100,pub_date='1922-2-3',publish=publish_obj)
+</code></pre>
+
+<p><code>方法二：</code></p>
+<pre><code class="python">Book.objects.create(title='金瓶',price=100,pub_date='1922-2-3',publish_id=1)
+</code></pre>
+
+<p>注意理解publish_obj:</p>
+<pre><code class="python"># 查看水浒传书籍的出版社对应的邮箱——注意这里的first()，把QuerySet对象转化为Object对象###
+book_obj = Book.objects.filter(title='水浒传').first()
+# 注意先.publish再.emali
+print(book_obj.publish.email)
+</code></pre>
+
+<p><strong>2、多对多添加记录</strong></p>
+<p>书籍与作者是多对多的关系。
+创建一个book记录，将两个作者关联到这个记录中，这两个作者写同一本书。</p>
+<pre><code class="python">##注意这里的first()得加！
+book_obj = Book.objects.create(title='三国群英传2',price=200,pub_date='1900-3-4',publish_id=2)
+whw = Author.objects.filter(nid=1).first()
+www = Author.objects.filter(nid=2).first()
+##绑定多对多关系的API。
+##这个authors就是Book类里建多对多关系的时候的那个：authors = models.ManyToManyField(to='Author')
+book_obj.authors.add(whw,www)
+
+##注意如果从既有的数据里找得这样写，authors字段在Book类中，因此必须是Book的对象去add Author对象
+##后面加上first()将QuerySet对象转换成model对象
+author1 = Author.objects.filter(name='whw').first()
+author2 = Author.objects.filter(name='www').first()
+book1 = Book.objects.filter(title='金瓶').first()
+book1.authors.add(author1,author2)
+
+##解除多对多关系，注意first得加
+book = Book.objects.filter(nid=4).first()   
+##注意这里的2代表author_id
+book.authors.remove(2)
+##也可以移除所有的关系：
+book.authors.clear()
+
+##重点来了！————all()
+##与这本书关联的所有作者对象集合——QuerySet对象。[obj1,obj2,......]
+ret = book.authors.all()
+print(ret)
+###查询主键为4的书籍的所有作者的名字###
+book_o = Book.objects.filter(nid=4).first()
+rets = book_o.authors.all().values('name')
+print(rets)
+###注意上面的结果是：&lt;QuerySet [{'name': 'whw'}, {'name': 'www'}]&gt;
+</code></pre>
+
+<h3 id="_4">多对多修改与删除</h3>
+<pre><code class="python"># 将某个特定的对象从被关联对象集合中去除。 book_obj.authors.remove(*[1，2])，将多对多的关系数据删除
+book_obj.authors.remove()      
+# 清空被关联对象集合
+book_obj.authors.clear()
+# 先清空再设置
+book_obj.authors.set()        
+
+### 删除实例
+book_obj = models.Book.objects.filter(nid=4)[0]
+#将第三张表中的这个book_obj对象对应的那个作者id为2的那条记录删除
+# book_obj.authors.remove(2) 
+
+# book_obj.authors.clear()
+
+#先清除掉所有的关系数据，然后只给这个书对象绑定这个id为2的作者，所以只剩下一条记录  
+# 比如用户编辑数据的时候，选择作者发生了变化，那么需要重新选择，所以我们就可以先清空，然后再重新绑定关系数据,
+# 注意这里写的是字符串，数字类型不可以
+# book_obj.authors.set('2') 
+
+#这么写也可以，但是注意列表中的元素是字符串，列表前面没有*，之前我测试有*，可能是版本的问题
+book_obj.authors.set(['1',]) 
+</code></pre>
+
+<h3 id="_5">多表操作之基于对象的跨表查询</h3>
+<p>基于对象的跨表查询最终翻译成SQL语句都是<code>子查询</code>。 数据库中的一个表记录其实就是筛选出来的“对象”的一个对象可以利用<code>.操作符</code>操作。</p>
+<p>values()等同于select。 </p>
+<p>filter()等同于where。</p>
+<p><strong>一对多查询（Book与Publish）</strong></p>
+<p>以Book表为基准，由于我们将关联的字段定义在了Book表中，也就是说“关联字段”在Book表中，所以从Book开始查是“正向”，从Publish开始查是“反向”。
+Book类中是这样写的：</p>
+<pre><code class="python">publish = models.ForeignKey(to='Publish',to_field='nid',on_delete=models.CASCADE,null=True)
+</code></pre>
+
+<pre><code class="python">Book         book_obj.publish         &gt;&gt;   Publish
+          ———————————————————————————————————— 
+            &lt;&lt;&lt;  publish_obj.book_set.all()#QuerySet author_boj1,author_obj2,......]
+</code></pre>
+
+<p><code>正向查询按字段——publish</code></p>
+<pre><code class="python">#查询主键为1的书籍的出版社的城市
+book_obj = Book.objects.filter(pk=1).first()
+#正向查询按字段
+##注意这里的book_obj.publish————是主键为1的书籍对象关联的出版社对象
+ret = book_obj.publish.city
+print(ret)
+
+#同样的：“西游记”书籍的出版社的名字：
+book_o = Book.objects.filter(title='水浒传').first()
+ret = book_o.publish.name
+print(ret)
+</code></pre>
+
+<p><code>反向查询按表名小写_set.all()：book_set.all()</code></p>
+<pre><code class="python">#查询“苹果出版社”出版过的所有书籍的书名
+publish_obj = Publish.objects.filter(name='苹果出版社').first()
+#反向查询按表名小写_set
+##注意 publish.book_set.all() ————是苹果出版社关联的所有“书籍对象”的集合
+book_list = publish.book_set.all()
+for book_obj in book_list:
+    print(book_obj.title)
+</code></pre>
+
+<p><strong>多对多查询(Book与Author，外加book_authors表)</strong></p>
+<p>以Book表为基准，由于我们将关联的字段定义在了Book表中，也就是说“关联字段”在Book表中，所以从Book开始查是“正向”，从Author开始查是“反向”。
+Book类中是这样写的：</p>
+<pre><code class="python">authors = models.ManyToManyField(to='Author')
+</code></pre>
+
+<pre><code class="python">Book        book_obj.authors.all()  &gt;&gt;  Author #QuerySet[author_boj1,author_obj2,...]
+         ———————————————————————————————————— 
+         &lt;&lt;&lt;  author_obj.book_set.all()  
+</code></pre>
+
+<p><code>正向查询按字段—authors</code></p>
+<pre><code class="python">#“三国群英”所有的作者及手机号
+##先“过滤”
+book_obj = Book.objects.filter(title='三国群英').first()
+##正向查询按字段
+##注意这里得到的 authors 是与这本书关联的所有 作者对象的集合
+authors = book_obj.authors.all()
+for author_obj in authors:
+    name = author_obj.name
+    ##手机号在“作者详细表”中，而且“作者表”相对于“作者详细表”是正向，关联字段为authordetail
+    telephone = author_obj.authordetail.telephone
+    print('作者:%s，手机号:%s'%(name,telephone))
+</code></pre>
+
+<p><code>反向查询按表名_set.all()—book_set.all()</code></p>
+<pre><code class="python">#查询作者whw出版过的所有书籍的名字
+##先“过滤”
+author_obj = Author.objects.filter(name='whw').first()
+##反向查询按表名小写_set
+##注意这里得到的是该作者写过的书的对象的集合
+book_list = author_obj.book_set.all()
+for book_obj in book_list:
+    print(book_obj.title)
+</code></pre>
+
+<p><strong>一对一查询(Author与AuthorDetail)</strong></p>
+<p>以Author表为基准，由于我们将关联的字段定义在了Author表中，也就是说“关联字段”在Author表中，所以从Author开始查是“正向”，从AuthorDetail开始查是“反向”。
+Author类中是这样写的：</p>
+<pre><code class="python">authordetail = models.OneToOneField(to='AuthorDetail',to_field='nid',on_delete=models.CASCADE)
+</code></pre>
+
+<pre><code class="python">Author        author_obj.authordetail  &gt;&gt;      AuthorDetail 
+             ———————————————————————————————————— 
+             &lt;&lt;&lt;    author_detail_obj.author_set
+</code></pre>
+
+<p><strong>正向查询按字段</strong></p>
+<pre><code class="python">#查询作者whw的电话
+author = Author.objects.filter(name='whw').first()
+##正向查询按字段
+ret = author.authordetail.telephone
+print(ret)
+</code></pre>
+
+<p><strong>反向查询按表名小写</strong></p>
+<pre><code class="python">#查询电话是12312312的作者名字
+(1)##注意这里的 authordetail_list 是一个QuerySet对象，后面没有用first
+authordetail_list = AuthorDetail.objects.filter(telephone=12312312)
+for obj in authordetail_list:
+    #反向查询用表名小写
+    print(obj.author.name)
+
+(2)也可以在后面加first() 
+add = AuthorDetail.objects.filter(telephone=12312312).first()
+#反向查询按表名小写：
+print(add.author.name)
+</code></pre>
+
+<h3 id="_6">多表操作之基于双下划线的跨表查询</h3>
+<p>1、基于双下划线的跨表查询最终翻译成SQL语句都是“join查询”  。</p>
+<p>2、正向查询按字段，反向查询按表名小写：用来告诉ORM引擎join哪张表。 </p>
+<p>3、基于双下划线的跨表查询先join成一张表，再执行“单表查询”。</p>
+<p>4、values()等同于select；filter()等同于where。</p>
+<p><strong>一对多关系</strong></p>
+<p>正向查询按字段，反向查询按表名小写用来告诉ORM引擎join哪张表。</p>
+<p>查询水浒传这本书的出版社的名字：Book与Publish。</p>
+<p><code>SQL语句这样写：</code></p>
+<pre><code class="sql">select publish.name from book inner join publish 
+on book.publish_id = publish.nid 
+where book.title = '水浒传'
+</code></pre>
+
+<p><code>正向查询</code></p>
+<p>以Book为基准，因为“关联字段”在Book类中</p>
+<p>Book里面这样定义的：</p>
+<pre><code class="python">publish = models.ForeignKey(to='Publish',to_field='nid',on_delete=models.CASCADE,null=True)
+</code></pre>
+
+<p>因此这样进行正向查询</p>
+<pre><code class="python">values()等同于select；filter()等同于where。  
+ret = Book.objects.filter(title='水浒传').values('publish__name')
+print(ret) #&lt;QuerySet [{'publish__name': '333'}]&gt;
+</code></pre>
+
+<p><code>反向查询</code></p>
+<p>从Publish查Book</p>
+<pre><code class="python">##反向查询按表名小写~
+## values()等同于select；filter()等同于where
+ret = Publish.objects.filter(book__title='水浒传').values('name')
+print(ret) #&lt;QuerySet [{'name': '333'}]&gt;
+</code></pre>
+
+<p><strong>多对多关系</strong></p>
+<p>查询三国群英这本书所有作者的名字 Book、Author、book_authors表。</p>
+<p><code>SQL语句这样写</code></p>
+<pre><code class="python">select author.name from book inner join book_authors
+on book.nid = book_authors.book_id
+inner join author
+on book_authors.author_id = author.nid
+where book.title = '三国群英'
+</code></pre>
+
+<p><code>正向查询</code></p>
+<p>以Book为基准，因为“关联字段”在Book类中</p>
+<pre><code class="python">##Book里面是这样定义的：
+authors = models.ManyToManyField(to='Author')
+
+##正向查询方法：
+##通过Book表join与其关联的Author表————按字段authors通知ORM引擎去join 表book_authors与表author。
+##正向查询按字段
+ret = Book.objects.filter(title='三国群英').values('authors__name')
+print(ret)  #&lt;QuerySet [{'authors__name': 'whw'}, {'authors__name': 'www'}]&gt;
+</code></pre>
+
+<p><code>反向查询</code></p>
+<p>以AUthor为基准反查</p>
+<pre><code class="python">##反向查询的方法：
+##通过Author表join与其关联的Book表————按表名小写book通知ORM引擎去join 表book_authors与表book。
+##反向查询按表名小写
+ret = Author.objects.filter(book__title='三国群英').values('name')
+print(ret) #&lt;QuerySet [{'name': 'whw'}, {'name': 'www'}]&gt;
+</code></pre>
+
+<p><strong>一对一关系</strong></p>
+<p>Author与AuthorDetail</p>
+<p>查询whw的手机号</p>
+<p><code>正向查询</code></p>
+<pre><code class="python">正向查询按字段——##通过Author表join与其关联的AUthorDetail表，按字段authordetail通知ORM引擎去join 表authordetail
+ret = Author.objects.filter(name='whw').values('authordetail__telephone')
+print(ret) #&lt;QuerySet [{'authordetail__telephone': 123123123}]&gt;
+</code></pre>
+
+<p><code>反向查询</code></p>
+<pre><code class="python">反向查询按表名小写——##通过AuthorDetail表join与其关联的AUthor表，按表名小写author通知ORM引擎去join 表author
+ret = AuthorDetail.objects.filter(author__name='whw').values('telephone')
+print(ret) #&lt;QuerySet [{'telephone': 123123123}]&gt;
+</code></pre>
+
+<h3 id="related_name">多表操作之连续跨表与related_name</h3>
+<p>这里以几个例子来进行讲解。</p>
+<p><strong>例1</strong></p>
+<p>查询地址以'as'开头的作者出版过的所有书籍名称以及书籍的出版社名称。</p>
+<p><code>(1)</code></p>
+<p>通过Book表join表AuthorDetail，但Book与AuthorDetail无关联，因此必须以Author为桥梁<code>连续跨表</code>：</p>
+<pre><code class="python">##注意这里是 value_list
+ret = Book.objects.filter(authors__authordetail__addr__startswith='as').values('title','publish__name')
+print(ret) #&lt;QuerySet [{'title': '三国群英', 'publish__name': '333'}]&gt;
+</code></pre>
+
+<p><code>(2)</code></p>
+<p>以Author表为基准，它与AuthorDetail表有关联，但是与Publish无关联，因此得以Book表为桥梁</p>
+<pre><code class="python">ret = Author.objects.filter(authordetail__addr__startswith='as').values('book__title','book__publish__name')
+print(ret) #&lt;QuerySet [{'book__title': '三国群英', 'book__publish__name': '333'}]&gt;
+</code></pre>
+
+<p><strong>例2</strong></p>
+<p>查询人民出版社出版过的所有书籍的名字以及作者的姓名。</p>
+<p><code>(1)正向查询</code></p>
+<pre><code class="python">##Book相对于Publish与Author都是“正向的”
+##注意用 values_list
+ret = Book.objects.filter(publish__name='人民出版社').values_list('title','authors__name')   
+print(ret)
+</code></pre>
+
+<p><code>(2)反向查询</code></p>
+<p>过程说明</p>
+<pre><code class="python">A_首先，filter等价于where，我们以Publish为基准查，因此filter里直接写name='人民出版社'即可；
+B_然后，由于Publish跟Author没有直接联系，我们得借助Book作为桥梁：
+(B1)要找书籍的名字，由于Publish查Book是反向查询，“用表明小写”————因此“书籍名字”是 book__title
+(B2)而要找作者名字，由于Book找Author是正向查询，“用字段”————因此“在Book的基础上”我们用：book__authors__name。
+</code></pre>
+
+<p>查询语句</p>
+<pre><code class="python">##注意用 values_list
+ret = Publish.objects.filter(name='人民出版社').values__list('book__title','book__authors__name')
+print(ret)
+</code></pre>
+
+<p><strong>related_name</strong></p>
+<p>“反向查询”时，如果定义了related_name ，则用related_name替换表名</p>
+<p>例如在Book中这样定义：</p>
+<pre><code class="python">publish = models.ForeignKey(to='Publish',to_field='nid',on_delete=models.CASCADE,null=True,related_name='booklist')
+</code></pre>
+
+<p>那么：查询人民出版社出版过的所有书籍的名字与价格(一对多)</p>
+<pre><code class="python">(1)正向查询“用不到”
+ret = Book.objects.filter(publish__name='人民出版社').values('title','price')
+print(ret)
+(2)反向查询用到related_names
+ret = Publish.objects.filter(name='人民出版社').values('booklist__title','booklist__price')
+</code></pre>
+
+<h3 id="_7">多表操作之聚合查询</h3>
+<p><strong>用法</strong></p>
+<pre><code class="python">(1)导入django.db.models 中的Avg,Max,Min,Count等模块  
+(2)找出来所有对象 Book.objects.all() 后 用aggregate()方法
+</code></pre>
+
+<p><strong>举例</strong></p>
+<p>查询所有书籍的平均价格以及最高的价格</p>
+<pre><code class="python">from django.db.models import Avg,Max,Min,Count
+
+ret = Book.objects.all().aggregate(avg_price=Avg('price'),max_price=Max('price'))
+print(ret) #{'avg_price': 160.0, 'max_price': Decimal('200.00')}
+</code></pre>
+
+<h3 id="fq">多表操作之F查询与Q查询</h3>
+<p><strong>拓展既有的Book模型</strong></p>
+<p>在Book表中新增两个字段：read_num与content_num。由于之前已经加了数据了，想要在有数据的表中再新增字段，那么需要为之前的记录设置default值。</p>
+<p>在Book类中新增：</p>
+<pre><code class="python">class Book(models.Model):
+    ##前面的字段略##
+    ##新增两个字段
+    ##加上 default=0 添加这两个字段后，之前的记录的这两个字段都默认为0
+    read_num = models.IntegerField(default=0)
+    content_num = models.IntegerField(default=0)
+</code></pre>
+
+<p>然后，在Terminal中运行：</p>
+<pre><code>python3 manage.py makemigrations
+python3 manage.py migrate
+</code></pre>
+
+<p>就可以将上面两个字段添加到book表中。</p>
+<p><strong>F查询</strong></p>
+<p><code>说明</code></p>
+<p>1、在上面所有的例子中，我们构造的过滤器都只是将字段值与某个常量做比较。如果我们要对两个字段的值做比较，那该怎么做呢？</p>
+<p>2、Django提供F()来做这样的比较。F()的实例可以在查询中引用字段，来比较同一个model实例中两个不同字段的值。</p>
+<p>3、需要先引入F。</p>
+<pre><code class="python">from django.db.models import F
+</code></pre>
+
+<p><code>举例</code></p>
+<p>1 字段间的比较</p>
+<p>查询同一张表中评论数大于点赞数的书籍的名字：查询content_num大于read_num的书籍的名字</p>
+<pre><code class="python">ret = Book.objects.filter(content_num__gt=F('read_num')).values('title')
+print(ret)
+#&lt;QuerySet [{'title': '水浒传'}, {'title': '金瓶'}, {'title': '三国群英传'}, {'title': '三国群英'}]&gt;
+</code></pre>
+
+<p>2 统一修改：与update结合</p>
+<p>2-1 将每个书籍的价格加10元</p>
+<pre><code class="python">Book.objects.all().update(price=F('price')+10)
+</code></pre>
+
+<p>2-2 给价格小于10元的书籍的价格增加10元</p>
+<pre><code class="python">Book.objects.filter(price__lt=10).update(price=F('price')+10)
+</code></pre>
+
+<p><strong>Q查询</strong></p>
+<p><code>说明</code></p>
+<p>1、filter() 等方法中的关键字参数查询都是一起进行“AND” 的。 如果你需要执行更复杂的查询（例如OR语句），你可以使用Q对象。</p>
+<p>2、需要先引入Q</p>
+<pre><code class="python">from django.db.models import Q
+</code></pre>
+
+<p><code>举例</code></p>
+<p>1 查找书名以“三国”开头或者价格等于100的书籍名称</p>
+<pre><code class="python">ret = Book.objects.filter(Q(title__startswith='三国') | Q(price=100)).values('title')
+print(ret) 
+#&lt;QuerySet [{'title': '三国群英传'}, {'title': '三国群英'}]&gt;
+</code></pre>
+
+<p>2 查找书名不以“三国”开头的书籍名称</p>
+<pre><code class="python">ret = Book.objects.filter(~Q(title__startswith='三')).values('title')
+print(ret) 
+#&lt;QuerySet [{'title': '金瓶'}, {'title': '水浒传'}, {'title': '金瓶'}]&gt;
+</code></pre>
+
+<p>3 Q查询与键值对的关系：先写Q再写键值对，而且是“且”的关系：</p>
+<pre><code class="python">ret = Book.objects.filter(~Q(title__startswith='三'),title__startswith='水').values('title')
+print(ret) 
+#&lt;QuerySet [{'title': '水浒传'}]&gt;
+</code></pre>
+
+<h3 id="_8">多表操作之多表下的分组查询</h3>
+<p><strong>多表下的分组查询语法(注意是values不是filter)：</strong></p>
+<pre><code class="python"># 注意以哪张表中的字段分组，哪一张表就是“后表”
+每一个后表模型.objects.values('pk').annotate(聚合函数('关联表__统计字段')).values('表模型的所有字段以及统计字段')
+</code></pre>
+
+<p><strong>另外一种写法：</strong></p>
+<pre><code class="python">每一个后表模型.objects.annotate(聚合函数('关联表__统计字段')).values('表模型的所有字段以及统计字段')
+
+# 这种写法等价于
+每一个后表模型.objects.all().annotate(聚合函数('关联表__统计字段')).values('表模型的所有字段以及统计字段')
+</code></pre>
+
+<h3 id="_9">一些多表分组查询的练习</h3>
+<p><strong>1、查询每一个出版社出版的书籍的个数</strong></p>
+<pre><code class="python">##后面这引入段省略
+from django.db.models import Avg,Max,Min,Count
+
+##查询每一个出版社出版的书籍的个数
+ret = Book.objects.values('publish_id').annotate(Cout('title'))
+print(ret)
+</code></pre>
+
+<p><strong>2、查询每一个出版社的名称以及出版书籍的个数</strong></p>
+<p><code>(1)SQL方法：</code></p>
+<pre><code class="python">select publish.name,Count('title') from book inner join publish 
+on book.publish_id = publish.nid
+group by publish_nid
+</code></pre>
+
+<p><code>(2)annotate方法：</code></p>
+<p>注意，Publish查Book是反向查询，按“表名”</p>
+<pre><code class="python">A:
+    ret = Publish.objects.values('name').annotate(count=Count('book__title'))
+    print(ret) #&lt;QuerySet [{'name': '苹果出版社', 'count': 1}, {'name': '333', 'count': 4}]&gt;
+###############################################################################
+B:  
+    ret = Publish.objects.values('name').annotate(count=Count('book__title')).values('name', 'count')
+    print(ret) #&lt;QuerySet [{'name': '苹果出版社', 'count': 1}, {'name': '333', 'count': 4}]&gt;
+</code></pre>
+
+<p><strong>3、查询每一个作者的名字以及出版过的书籍的最高价格</strong></p>
+<p><code>(1)SQL方法</code></p>
+<pre><code class="sql">select author.name,Max(book.price) from book inner join book_authors
+on book.nid = book_authors.book_id
+inner join author 
+on autohr.nid = book_authors.author_id
+group by author.nid
+</code></pre>
+
+<p><code>(2)annotate方法</code></p>
+<p>注意主键可以用 pk 表示；Author找Book是“反向查询”按表名小写</p>
+<pre><code class="python">ret = Author.objects.values('pk').annotate(max_price=Max('book__price')).values('name','max_price')
+print(ret) 
+#&lt;QuerySet[{'name':'whw','max_price':Decimal('200.00')},{'name':'www','max_price': Decimal('200.00')}]&gt;
+</code></pre>
+
+<p><strong>4、查询每一个书籍的名称以及对应的作者的个数</strong></p>
+<p>“正向查询按字段”</p>
+<pre><code class="python">ret = Book.objects.values('pk').annotate(c=Count('authors__name')).values('title','c')
+print(ret) 
+# &lt;QuerySet [{'title': '三国群英传', 'c': 1}, {'title': '三国群英', 'c': 2}, {'title': '金瓶', 'c': 0}, {'title': '水浒传', 'c': 0}, {'title': '金瓶', 'c': 0}]&gt;
+</code></pre>
+
+<p><strong>5、统计每一本以“三”字开头的书籍的作者的个数：Book找Author是多对多，而且是“正向查询”按字段</strong></p>
+<pre><code class="python">ret = Book.objects.filter(title__startswith='三').annotate(c=Count('authors__name')).values('title','c')
+print(ret) 
+#&lt;QuerySet [{'title': '三国群英传', 'c': 1}, {'title': '三国群英', 'c': 2}]&gt;
+</code></pre>
+
+<p><strong>6、统计不止一个作者的书籍的名字：Book找Author是多对多，而且是“正向查询”按字段</strong></p>
+<pre><code class="python">ret = Book.objects.values('pk').annotate(num_authors=Count('authors__name')).filter(num_authors__gt=1).values('title','num_authors')
+print(ret)
+</code></pre>
+
+<p><strong>7、根据一本图书作者数量的多少对查询集 QuerySet进行排序</strong></p>
+<pre><code class="python">Book.objects.annotate(num_authors=Count('authors')).order_by('num_authors')
+</code></pre>
+
+<p><strong>8、查询各个作者出的书的总价格</strong></p>
+<pre><code class="python">#按author表的所有字段 group by
+queryResult=Author.objects
+                    .annotate(SumPrice=Sum(&quot;book__price&quot;))
+　　　　　　　　　　　　.values_list(&quot;name&quot;,&quot;SumPrice&quot;)
+print(queryResult)
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../模板层/" class="btn btn-neutral float-right" title="05 模板层">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../模型层/" class="btn btn-neutral" title="03 模型层1-ORM介绍及单表操作"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../模型层/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../模板层/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>
