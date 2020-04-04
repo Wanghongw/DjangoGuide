@@ -7,16 +7,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   
-  <link rel="shortcut icon" href="./img/favicon.ico">
-  <title>Django使用指南</title>
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Django文件上传之单文件的上传 - Django使用指南</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="./css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
-  <script src="./js/jquery-2.1.1.min.js" defer></script>
-  <script src="./js/modernizr-2.8.3.min.js" defer></script>
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Django\u6587\u4ef6\u4e0a\u4f20\u4e4b\u5355\u6587\u4ef6\u7684\u4e0a\u4f20";
+    var mkdocs_page_input_path = "Django\u8fdb\u9636/Django\u6587\u4ef6\u4e0a\u4f20\u4e4b\u5355\u4e2a\u6587\u4ef6\u7684\u4e0a\u4f20.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
@@ -29,9 +36,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="./." class="icon icon-home"> Django使用指南</a>
+        <a href="../.." class="icon icon-home"> Django使用指南</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -43,7 +50,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="./Django框架入门/">Django框架入门</a>
+    <a class="" href="../../Django框架入门/">Django框架入门</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -52,27 +59,27 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="./Django核心/路由/">01 路由控制</a>
+    <a class="" href="../../Django核心/路由/">01 路由控制</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django核心/视图系统/">02 视图系统</a>
+    <a class="" href="../../Django核心/视图系统/">02 视图系统</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django核心/模型层/">03 模型层1-ORM介绍及单表操作</a>
+    <a class="" href="../../Django核心/模型层/">03 模型层1-ORM介绍及单表操作</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django核心/ORM多表/">04 模型层2-ORM多表操作</a>
+    <a class="" href="../../Django核心/ORM多表/">04 模型层2-ORM多表操作</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django核心/模板层/">05 模板层</a>
+    <a class="" href="../../Django核心/模板层/">05 模板层</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django核心/中间件/">06 中间件</a>
+    <a class="" href="../../Django核心/中间件/">06 中间件</a>
                 </li>
     </ul>
 	    </li>
@@ -83,19 +90,19 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="./Django组件/Django中contenttypes组件的使用/">contenttypes组件</a>
+    <a class="" href="../../Django组件/Django中contenttypes组件的使用/">contenttypes组件</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django组件/Django中的缓存详述/">Django中的缓存详述</a>
+    <a class="" href="../../Django组件/Django中的缓存详述/">Django中的缓存详述</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django组件/Django中的信号signal/">Django中的信号signal</a>
+    <a class="" href="../../Django组件/Django中的信号signal/">Django中的信号signal</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django组件/Django中执行原生SQL语句/">Django中执行原生SQL语句</a>
+    <a class="" href="../../Django组件/Django中执行原生SQL语句/">Django中执行原生SQL语句</a>
                 </li>
     </ul>
 	    </li>
@@ -106,51 +113,54 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="./Django进阶/数据库严格模式/">数据库严格模式</a>
+    <a class="" href="../数据库严格模式/">数据库严格模式</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/ORM语句的优化/">ORM语句的优化</a>
+    <a class="" href="../ORM语句的优化/">ORM语句的优化</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/外部脚本调用Django环境/">外部脚本调用Django环境</a>
+    <a class="" href="../外部脚本调用Django环境/">外部脚本调用Django环境</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/Celery介绍及在Django中的使用/">Celery介绍及在Django中的使用</a>
+    <a class="" href="../Celery介绍及在Django中的使用/">Celery介绍及在Django中的使用</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/在CentOS7系统中部署Django项目/">CentOS7系统中部署Django项目</a>
+    <a class="" href="../在CentOS7系统中部署Django项目/">CentOS7系统中部署Django项目</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/浅析Django的settings配置原理/">浅析Django的settings配置原理</a>
+    <a class="" href="../浅析Django的settings配置原理/">浅析Django的settings配置原理</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/Django文件上传之多文件的上传/">Django文件上传之多文件的上传</a>
+    <a class="" href="../Django文件上传之多文件的上传/">Django文件上传之多文件的上传</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">Django文件上传之单文件的上传</a>
+    <ul class="subnav">
+            
+    </ul>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/Django文件上传之单个文件的上传/">Django文件上传之单文件的上传</a>
+    <a class="" href="../Django中使用redis做缓存的配置方法/">Django中使用redis</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/Django中使用redis做缓存的配置方法/">Django中使用redis</a>
+    <a class="" href="../数据库迁移时遇到的问题以及迁移的执行过程/">数据库迁移的执行过程</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/数据库迁移时遇到的问题以及迁移的执行过程/">数据库迁移的执行过程</a>
+    <a class="" href="../Django视图在CBV模式下使用装饰器的方法/">CBV下使用装饰器的方法</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./Django进阶/Django视图在CBV模式下使用装饰器的方法/">CBV下使用装饰器的方法</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="./Django进阶/自定义类实现原生SQL的GROUP-CONCAT的功能/">自定义类实现原生SQL的GROUP-CONCAT的功能</a>
+    <a class="" href="../自定义类实现原生SQL的GROUP-CONCAT的功能/">自定义类实现原生SQL的GROUP-CONCAT的功能</a>
                 </li>
     </ul>
 	    </li>
@@ -161,23 +171,23 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="./DRF相关/DRF的视图/">DRF的视图</a>
+    <a class="" href="../../DRF相关/DRF的视图/">DRF的视图</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./DRF相关/DRF的Router/">DRF的Router</a>
+    <a class="" href="../../DRF相关/DRF的Router/">DRF的Router</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./DRF相关/DRF的序列化器serializers/">DRF的序列化器serializers</a>
+    <a class="" href="../../DRF相关/DRF的序列化器serializers/">DRF的序列化器serializers</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./DRF相关/DRF的2个实例/">个人基于DRF做的2个参考demo</a>
+    <a class="" href="../../DRF相关/DRF的2个实例/">个人基于DRF做的2个参考demo</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="./DRF相关/认证、权限及访问频率限制/">认证、权限及访问频率限制简介</a>
+    <a class="" href="../../DRF相关/认证、权限及访问频率限制/">认证、权限及访问频率限制简介</a>
                 </li>
     </ul>
 	    </li>
@@ -192,7 +202,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="./.">Django使用指南</a>
+        <a href="../..">Django使用指南</a>
       </nav>
 
       
@@ -200,9 +210,15 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="./.">Docs</a> &raquo;</li>
+    <li><a href="../..">Docs</a> &raquo;</li>
     
+      
+        
+          <li>Django进阶及其他知识点汇总 &raquo;</li>
+        
+      
     
+    <li>Django文件上传之单文件的上传</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -212,22 +228,21 @@
           <div role="main">
             <div class="section">
               
-
-  <h1 id="search">Search Results</h1>
-
-  <form id="content_search" action="search.html">
-    <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
-    <input name="q" id="mkdocs-search-query" type="text" class="search_input search-query ui-autocomplete-input" placeholder="Search the Docs" autocomplete="off" autofocus title="Type search term here">
-  </form>
-
-  <div id="mkdocs-search-results" class="search-results">
-    Searching...
-  </div>
-
-
+                <p>请参考我的个人博客：</p>
+<p><a href="https://huoyingwhw.com/2019/02/03/Django%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%8D%95%E4%B8%AA%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%8A%E4%BC%A0/">Django文件上传之单个文件的上传</a></p>
+              
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Django中使用redis做缓存的配置方法/" class="btn btn-neutral float-right" title="Django中使用redis">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../Django文件上传之多文件的上传/" class="btn btn-neutral" title="Django文件上传之多文件的上传"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -251,12 +266,16 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../Django文件上传之多文件的上传/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../Django中使用redis做缓存的配置方法/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
-    <script>var base_url = '.';</script>
-    <script src="./js/theme.js" defer></script>
-      <script src="./search/main.js" defer></script>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
 
 </body>
 </html>

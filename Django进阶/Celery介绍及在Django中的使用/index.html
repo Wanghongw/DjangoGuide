@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>ORM语句的优化 - Django使用指南</title>
+  <title>Celery介绍及在Django中的使用 - Django使用指南</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "ORM\u8bed\u53e5\u7684\u4f18\u5316";
-    var mkdocs_page_input_path = "Django\u8fdb\u9636/ORM\u8bed\u53e5\u7684\u4f18\u5316.md";
+    var mkdocs_page_name = "Celery\u4ecb\u7ecd\u53ca\u5728Django\u4e2d\u7684\u4f7f\u7528";
+    var mkdocs_page_input_path = "Django\u8fdb\u9636/Celery\u4ecb\u7ecd\u53ca\u5728Django\u4e2d\u7684\u4f7f\u7528.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -115,26 +115,20 @@
                     
     <a class="" href="../数据库严格模式/">数据库严格模式</a>
                 </li>
-                <li class=" current">
+                <li class="">
                     
-    <a class="current" href="./">ORM语句的优化</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#onlydefer">only与defer</a></li>
-    
-
-    <li class="toctree-l3"><a href="#selected_related">selected_related：连表查询</a></li>
-    
-
-    </ul>
+    <a class="" href="../ORM语句的优化/">ORM语句的优化</a>
                 </li>
                 <li class="">
                     
     <a class="" href="../外部脚本调用Django环境/">外部脚本调用Django环境</a>
                 </li>
-                <li class="">
+                <li class=" current">
                     
-    <a class="" href="../Celery介绍及在Django中的使用/">Celery介绍及在Django中的使用</a>
+    <a class="current" href="./">Celery介绍及在Django中的使用</a>
+    <ul class="subnav">
+            
+    </ul>
                 </li>
                 <li class="">
                     
@@ -224,7 +218,7 @@
         
       
     
-    <li>ORM语句的优化</li>
+    <li>Celery介绍及在Django中的使用</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -234,57 +228,9 @@
           <div role="main">
             <div class="section">
               
-                <h3 id="onlydefer">only与defer</h3>
-<p><strong>需求1：只取某n列。</strong></p>
-<p>1、values得出列表嵌套字典</p>
-<pre><code>queryset=[ {},{}]
-models.User.objects.all().values( 'id','name')
-</code></pre>
-
-<p>2、values_list得出列表嵌套元组</p>
-<pre><code>queryset=[ (),()]
-models.User.objects.all().values_list( 'id','name')
-</code></pre>
-
-<p>3、only得出列表嵌套对象</p>
-<pre><code>queryset=[ obj,obj]
-result = models.User.objects.all().only('id','name','age')    
-</code></pre>
-
-<p>通过for循环取值</p>
-<pre><code class="python">for item in reuslt:
-      print(item.id,item.name,item.age)
-</code></pre>
-
-<p>4、defer排除某些字段</p>
-<pre><code>result = models.User.objects.all().defer('id','name','age')    
-</code></pre>
-
-<h3 id="selected_related">selected_related：连表查询</h3>
-<p><strong>需求2：打印所有用户姓名以及部门名称</strong></p>
-<p>现有两张表，用户与部门是多对一的关系</p>
-<pre><code>class depart:
-    title = ....
-
-class User:
-    name = ...
-    dp = FK(depart)
-</code></pre>
-
-<p>方法1：</p>
-<p>先查所有用户，再跨表查部门名称 —— 这样性能很低！</p>
-<pre><code># select * from user  result = models.User.objects.all()
- for item in result:
-     print(item.name,item.dp.title) # 这样做跨表性能非常低
-</code></pre>
-
-<p>方法2:</p>
-<p>使用selected_related进行连表查询</p>
-<pre><code># select * from user left join depart on user.dp_id = depart.id 
-result = models.User.objects.all().selected_related('dp')
-for item in result:
-    print(item.name,item.dp.title )
-</code></pre>
+                <p>本文详细介绍了Celery的原理、简单使用以及在Django中的应用实例。<!-- more -->
+Celery博客我写在了<code>博客园</code>中，因为博客园的文本编辑器相对来说格式更加丰富，Celery这篇博客个人认为还是有很多需要重点注意的细节的，所以重要的地方都用特殊的格式标注了下来，希望对大家学习Celery以及在Django中使用Celery有所帮助！
+<strong>博客链接：<a href="https://www.cnblogs.com/paulwhw/p/11631735.html">异步任务分发模块Celery</a></strong></p>
               
             </div>
           </div>
@@ -292,10 +238,10 @@ for item in result:
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../外部脚本调用Django环境/" class="btn btn-neutral float-right" title="外部脚本调用Django环境">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../在CentOS7系统中部署Django项目/" class="btn btn-neutral float-right" title="CentOS7系统中部署Django项目">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../数据库严格模式/" class="btn btn-neutral" title="数据库严格模式"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../外部脚本调用Django环境/" class="btn btn-neutral" title="外部脚本调用Django环境"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -321,10 +267,10 @@ for item in result:
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../数据库严格模式/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../外部脚本调用Django环境/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../外部脚本调用Django环境/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../在CentOS7系统中部署Django项目/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
