@@ -5,16 +5,45 @@ nav:
 - Django核心知识点详解: 
   - 01 路由控制: Django核心/路由.md
   - 02 视图系统: Django核心/视图系统.md
-  - 03 模型层: Django核心/模型层.md
-  - 04 模板层: Django核心/模板层.md
-  - 05 中间件: Django核心/中间件.md
+  - 03 模型层1-ORM介绍及单表操作: Django核心/模型层.md
+  - 04 模型层2-ORM多表操作: Django核心/ORM多表.md
+  - 05 模板层: Django核心/模板层.md
+  - 06 中间件: Django核心/中间件.md
+
+
 - Django中常用的组件介绍:
   - contenttypes组件: Django组件/Django中contenttypes组件的使用.md
+  - Django中的缓存详述: Django组件/Django中的缓存详述.md
+  - Django中的信号signal: Django组件/Django中的信号signal.md
+  - Django中执行原生SQL语句: Django组件/Django中执行原生SQL语句.md
+
+
 - Django进阶及其他知识点汇总:
+  - 数据库严格模式: Django进阶/数据库严格模式.md
   - ORM语句的优化: Django进阶/ORM语句的优化.md
+  - 外部脚本调用Django环境: Django进阶/外部脚本调用Django环境.md
+  - Celery介绍及在Django中的使用: Django进阶/Celery介绍及在Django中的使用.md
+  - CentOS7系统中部署Django项目: Django进阶/在CentOS7系统中部署Django项目.md
+  - 浅析Django的settings配置原理: Django进阶/浅析Django的settings配置原理.md
+  - Django文件上传之多文件的上传: Django进阶/Django文件上传之多文件的上传.md
+  - Django文件上传之单文件的上传: Django进阶/Django文件上传之单个文件的上传.md
+  - Django中使用redis: Django进阶/Django中使用redis做缓存的配置方法.md
+  - 数据库迁移的执行过程: Django进阶/数据库迁移时遇到的问题以及迁移的执行过程.md
+  - CBV下使用装饰器的方法: Django进阶/Django视图在CBV模式下使用装饰器的方法.md
+  - 自定义类实现原生SQL的GROUP-CONCAT的功能: Django进阶/自定义类实现原生SQL的GROUP-CONCAT的功能.md
+  
+
 - DRF相关:
+  - DRF的视图: DRF相关/DRF的视图.md
+  - DRF的Router: DRF相关/DRF的Router.md
+  - DRF的序列化器serializers: DRF相关/DRF的序列化器serializers.md
+  - 个人基于DRF做的2个参考demo: DRF相关/DRF的2个实例.md
   - 认证、权限及访问频率限制简介: DRF相关/认证、权限及访问频率限制.md
-- web开发常识:
-  - 123: 123.md
+  
+
+
+
+# - web开发常识:
+#   - 123: 123.md
 
 theme: readthedocs
