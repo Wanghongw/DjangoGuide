@@ -1,2 +1,2 @@
 ## 个人Django指南
-### 持续更新中
+详情访问：[https://huoyingwhw.com/djangoGuide/](https://huoyingwhw.com/djangoGuide/)
