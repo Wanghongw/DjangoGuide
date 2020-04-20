@@ -77,6 +77,9 @@
     <li class="toctree-l2"><a href="#djangomysql">Django与MySQL的交互</a></li>
     
 
+    <li class="toctree-l2"><a href="#django21">Django2.1版本没有报错 ***</a></li>
+    
+
     <li class="toctree-l2"><a href="#orm">ORM的简单使用</a></li>
     
 
@@ -724,6 +727,14 @@ mysql&gt; select * from user_user;
 3 rows in set (0.00 sec)
 </code></pre>
 
+<h3 id="django21">Django2.1版本没有报错 ***</h3>
+<p>我们举的例子的Django版本是2.2的，我使用<code>Django2.1.15版本</code>测试了一下没有错误，在此记录一下：</p>
+<p>我又重新创建了一个Django2.1.15版本的项目，步骤跟上面的一样。</p>
+<p><strong>1、先看一下虚拟环境中安装的包</strong></p>
+<p><img alt="dj21" src="../img/dj21_1.png" /></p>
+<p><strong>2、进行跟上面相同的配置，不用改变源码，执行数据库迁移的操作并没有报错</strong></p>
+<p><img alt="dj21" src="../img/dj21_2.png" /></p>
+<p><img alt="dj21" src="../img/dj21_3.png" /></p>
 <h3 id="orm">ORM的简单使用</h3>
 <p>ORM(Object Relational Mapping)对象关系映射，简单而言其实就是让程序员使用面向对象的方式操作数据库中的数据，虽然有些极端的情况下性能上要低于执行原生SQL的效率，但是绝大多数的情况下都可以满足用户的需求（在ORM中也可以执行原生SQL，后面会介绍）。</p>
 <p>其实上面<code>Django与MySQL的交互</code>部分介绍的内容就已经做了Django程序与MySQL数据库的关联，我们现在只需要使用ORM语法就可以操作数据库了。</p>
